@@ -23,7 +23,7 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 6.h,
+      height: 7.h,
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.4.h),
       decoration: BoxDecoration(
         color: AppTheme.lightTheme.colorScheme.surface,
@@ -73,8 +73,8 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
                       ? () => onQuestionTap!(index)
                       : null,
                   child: Container(
-                    width: 6.w,
-                    height: 6.w,
+                    width: 8.w,
+                    height: 8.w,
                     margin: EdgeInsets.only(right: 2.w),
                     decoration: BoxDecoration(
                       color: _getQuestionIndicatorColor(
@@ -84,11 +84,11 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
                         isSelected,
                         isCorrect,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(7),
                       border: isCurrentQuestion
                           ? Border.all(
                               color: AppTheme.lightTheme.colorScheme.primary,
-                              width: 2,
+                              width: 1.5,
                             )
                           : null,
                     ),
@@ -105,7 +105,7 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
                             isCorrect,
                           ),
                           fontWeight: FontWeight.w600,
-                          fontSize: 10.sp,
+                          fontSize: 12.sp,
                         ),
                       ),
                     ),

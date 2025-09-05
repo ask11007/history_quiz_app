@@ -21,7 +21,6 @@ class QuizHeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 0.5.h),
       decoration: BoxDecoration(
         color: AppTheme.lightTheme.colorScheme.surface,
         boxShadow: [
@@ -33,51 +32,43 @@ class QuizHeaderWidget extends StatelessWidget {
         ],
       ),
       child: SafeArea(
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () => _showExitConfirmation(context),
-              child: Container(
-                padding: EdgeInsets.all(1.5.w),
-                decoration: BoxDecoration(
-                  color: AppTheme.lightTheme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppTheme.lightTheme.colorScheme.outline,
-                    width: 1,
-                  ),
-                ),
-                child: CustomIconWidget(
-                  iconName: 'arrow_back',
-                  color: AppTheme.lightTheme.colorScheme.onSurface,
-                  size: 20,
-                ),
-              ),
-            ),
-            SizedBox(width: 4.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    subjectName,
-                    style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w400,
-                      color: AppTheme.lightTheme.colorScheme.onSurface,
+        bottom: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () => _showExitConfirmation(context),
+                child: Container(
+                  padding: EdgeInsets.all(1.5.w),
+                  decoration: BoxDecoration(
+                    color: AppTheme.lightTheme.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppTheme.lightTheme.colorScheme.outline,
+                      width: 1,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  // Text(
-                  //   'Question $currentQuestion of $totalQuestions',
-                  //   style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-                  //     color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
-                  //   ),
-                  // ),
-                ],
+                  child: CustomIconWidget(
+                    iconName: 'arrow_back',
+                    color: AppTheme.lightTheme.colorScheme.onSurface,
+                    size: 20,
+                  ),
+                ),
               ),
-            ),
-          ],
+              SizedBox(width: 4.w),
+              Expanded(
+                child: Text(
+                  subjectName,
+                  style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w400,
+                    color: AppTheme.lightTheme.colorScheme.onSurface,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

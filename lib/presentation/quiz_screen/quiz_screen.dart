@@ -587,7 +587,6 @@ class _QuizScreenState extends State<QuizScreen> {
                       explanation: _currentQuestion.explanation,
                       isVisible: _showExplanation,
                     ),
-                    SizedBox(height: 2.h),
                   ],
                 ),
               ),
@@ -595,7 +594,6 @@ class _QuizScreenState extends State<QuizScreen> {
             // Navigation - Always show if there are multiple questions
             if (_quizData.length > 1)
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                 decoration: BoxDecoration(
                   color: AppTheme.lightTheme.colorScheme.surface,
                   boxShadow: [
@@ -607,134 +605,140 @@ class _QuizScreenState extends State<QuizScreen> {
                   ],
                 ),
                 child: SafeArea(
-                  child: Row(
-                    children: [
-                      // Previous Button
-                      if (_quizStateManager
-                          .canNavigateToPrevious(_currentQuestionIndex))
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: _previousQuestion,
-                            style: OutlinedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 1.h),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              side: BorderSide(
-                                color: AppTheme.lightTheme.colorScheme.primary,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CustomIconWidget(
-                                  iconName: 'arrow_back',
+                  top: false,
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                    child: Row(
+                      children: [
+                        // Previous Button
+                        if (_quizStateManager
+                            .canNavigateToPrevious(_currentQuestionIndex))
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: _previousQuestion,
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                side: BorderSide(
                                   color:
                                       AppTheme.lightTheme.colorScheme.primary,
-                                  size: 20,
+                                  width: 1.5,
                                 ),
-                                SizedBox(width: 2.w),
-                                Text(
-                                  'Previous',
-                                  style: AppTheme
-                                      .lightTheme.textTheme.titleMedium
-                                      ?.copyWith(
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CustomIconWidget(
+                                    iconName: 'arrow_back',
                                     color:
                                         AppTheme.lightTheme.colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
+                                    size: 20,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-
-                      // Spacing between buttons
-                      if (_quizStateManager
-                              .canNavigateToPrevious(_currentQuestionIndex) &&
-                          (_quizStateManager.canNavigateToNext(
-                                  _currentQuestionIndex, _quizData.length) ||
-                              _isLastQuestion))
-                        SizedBox(width: 4.w),
-
-                      // Next Button or Finish Button
-                      if (_quizStateManager.canNavigateToNext(
-                          _currentQuestionIndex, _quizData.length))
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _nextQuestion,
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 1.h),
-                              backgroundColor:
-                                  AppTheme.lightTheme.colorScheme.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                  SizedBox(width: 2.w),
+                                  Text(
+                                    'Previous',
+                                    style: AppTheme
+                                        .lightTheme.textTheme.titleMedium
+                                        ?.copyWith(
+                                      color: AppTheme
+                                          .lightTheme.colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              minimumSize: Size(double.infinity, 5.h),
-                              maximumSize: Size(double.infinity, 5.h),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Next',
-                                  style: AppTheme
-                                      .lightTheme.textTheme.titleMedium
-                                      ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                SizedBox(width: 2.w),
-                                CustomIconWidget(
-                                  iconName: 'arrow_forward',
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ],
                             ),
                           ),
-                        )
-                      else if (_isLastQuestion)
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _finishQuiz,
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 1.h),
-                              backgroundColor:
-                                  AppTheme.lightTheme.colorScheme.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+
+                        // Spacing between buttons
+                        if (_quizStateManager
+                                .canNavigateToPrevious(_currentQuestionIndex) &&
+                            (_quizStateManager.canNavigateToNext(
+                                    _currentQuestionIndex, _quizData.length) ||
+                                _isLastQuestion))
+                          SizedBox(width: 4.w),
+
+                        // Next Button or Finish Button
+                        if (_quizStateManager.canNavigateToNext(
+                            _currentQuestionIndex, _quizData.length))
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _nextQuestion,
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                                backgroundColor:
+                                    AppTheme.lightTheme.colorScheme.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                minimumSize: Size(double.infinity, 6.h),
+                                maximumSize: Size(double.infinity, 6.h),
                               ),
-                              minimumSize: Size(double.infinity, 5.h),
-                              maximumSize: Size(double.infinity, 5.h),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Finish',
-                                  style: AppTheme
-                                      .lightTheme.textTheme.titleMedium
-                                      ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Next',
+                                    style: AppTheme
+                                        .lightTheme.textTheme.titleMedium
+                                        ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
+                                  SizedBox(width: 2.w),
+                                  CustomIconWidget(
+                                    iconName: 'arrow_forward',
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else if (_isLastQuestion)
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: _finishQuiz,
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                                backgroundColor:
+                                    AppTheme.lightTheme.colorScheme.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                SizedBox(width: 2.w),
-                                CustomIconWidget(
-                                  iconName: 'check',
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ],
+                                minimumSize: Size(double.infinity, 6.h),
+                                maximumSize: Size(double.infinity, 6.h),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Finish',
+                                    style: AppTheme
+                                        .lightTheme.textTheme.titleMedium
+                                        ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  CustomIconWidget(
+                                    iconName: 'check',
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

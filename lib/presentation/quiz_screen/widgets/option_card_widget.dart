@@ -27,9 +27,11 @@ class OptionCardWidget extends StatelessWidget {
       case OptionState.selected:
         return Color(0xFF02732A); // Bright green before submission
       case OptionState.correct:
-        return Color(0xFF02732A); // Same bright green as selection for correct answer
+        return Color(
+            0xFF02732A); // Same bright green as selection for correct answer
       case OptionState.incorrect:
-        return Color(0xFF8B0000); // Dark red for incorrect answer (matte/frosted)
+        return Color(
+            0xFF8B0000); // Dark red for incorrect answer (matte/frosted)
       case OptionState.unselected:
         return Theme.of(context).colorScheme.surface;
     }
@@ -55,7 +57,7 @@ class OptionCardWidget extends StatelessWidget {
       case OptionState.incorrect:
         return Icons.radio_button_checked;
       case OptionState.unselected:
-      return Icons.radio_button_unchecked;
+        return Icons.radio_button_unchecked;
     }
   }
 
@@ -72,7 +74,7 @@ class OptionCardWidget extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         width: double.infinity,
-        margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+        margin: EdgeInsets.symmetric(horizontal: 1.5.w, vertical: 0.7.h),
         padding: EdgeInsets.all(4.w),
         decoration: BoxDecoration(
           color: _getBackgroundColor(context),
@@ -81,15 +83,13 @@ class OptionCardWidget extends StatelessWidget {
           //   color: _getBorderColor(context),
           //   width: 2,
           // ),
-          boxShadow: state != OptionState.unselected
-              ? [
-                  BoxShadow(
-                    color: _getBackgroundColor(context).withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : [],
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.lightTheme.colorScheme.shadow,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -108,7 +108,8 @@ class OptionCardWidget extends StatelessWidget {
                     : 'radio_button_unchecked',
                 color: state == OptionState.unselected
                     ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Colors.white, // White for all selected states (selected, correct, incorrect)
+                    : Colors
+                        .white, // White for all selected states (selected, correct, incorrect)
                 size: 20,
               ),
             ),
@@ -119,18 +120,21 @@ class OptionCardWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 color: state == OptionState.unselected
                     ? Theme.of(context).colorScheme.primaryContainer
-                    : Colors.white.withValues(alpha: 0.2), // Same faded white for both correct and incorrect
+                    : Colors.white.withValues(
+                        alpha:
+                            0.2), // Same faded white for both correct and incorrect
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Center(
                 child: Text(
                   optionLabel,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: state == OptionState.unselected
-                        ? Theme.of(context).colorScheme.onPrimaryContainer
-                        : Colors.white, // White for all selected states (selected, correct, incorrect)
-                    fontWeight: FontWeight.w600,
-                  ),
+                        color: state == OptionState.unselected
+                            ? Theme.of(context).colorScheme.onPrimaryContainer
+                            : Colors
+                                .white, // White for all selected states (selected, correct, incorrect)
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
             ),
@@ -139,10 +143,10 @@ class OptionCardWidget extends StatelessWidget {
               child: Text(
                 optionText,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: _getTextColor(context),
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                ),
+                      color: _getTextColor(context),
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                    ),
                 overflow: TextOverflow.visible,
               ),
             ),

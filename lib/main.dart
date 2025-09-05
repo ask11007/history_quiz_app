@@ -140,7 +140,7 @@ class AuthWrapper extends StatelessWidget {
               width: 20.w,
               height: 20.w,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -152,11 +152,32 @@ class AuthWrapper extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: EdgeInsets.all(3.w),
-                child: CustomIconWidget(
-                  iconName: 'quiz',
-                  color: Colors.white,
-                  size: 10.w,
+                padding: EdgeInsets.all(2.w),
+                child: Image.asset(
+                  'assets/images/app_icon.png',
+                  width: 16.w,
+                  height: 16.w,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('App icon failed to load in main.dart: $error');
+                    // Fallback to colored container with quiz icon
+                    return Container(
+                      width: 16.w,
+                      height: 16.w,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(2.w),
+                        child: CustomIconWidget(
+                          iconName: 'quiz',
+                          color: Colors.white,
+                          size: 10.w,
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
