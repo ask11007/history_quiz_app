@@ -269,6 +269,69 @@ class SupabaseService {
     }
   }
 
+  // Fetch available sub-tags for a specific subject tag
+  static Future<List<String>> getAvailableSubTags(String tag) async {
+    try {
+      print('Fetching available sub-tags for tag: "$tag"');
+
+      final response = await _client
+          .from('questions')
+          .select('sub_tag')
+          .eq('tag', tag)
+          .order('sub_tag');
+      print('Sub-tags response: $response');
+
+      if (response == null || response.isEmpty) {
+        print('No sub-tags found for tag: $tag');
+        return [];
+      }
+
+      final subTags = (response as List)
+          .map((json) => json['sub_tag'] as String?)
+          .where((subTag) => subTag != null && subTag.isNotEmpty)
+          .map((subTag) => subTag!)
+          .toSet() // Remove duplicates
+          .toList();
+      print('Available sub-tags extracted: $subTags');
+      return subTags;
+    } catch (e) {
+      print('Error fetching sub-tags: $e');
+      print('Error type: ${e.runtimeType}');
+      return [];
+    }
+  }
+
+  // Fetch questions by both tag and sub_tag
+  static Future<List<Question>> getQuestionsByTagAndSubTag(
+      String tag, String subTag) async {
+    try {
+      print('Fetching questions for tag: "$tag" and sub_tag: "$subTag"');
+
+      final response = await _client
+          .from('questions')
+          .select()
+          .eq('tag', tag)
+          .eq('sub_tag', subTag)
+          .order('id');
+
+      print(
+          'Supabase response for tag "$tag" and sub_tag "$subTag": $response');
+
+      if (response == null || response.isEmpty) {
+        print('No questions found for tag: $tag and sub_tag: $subTag');
+        return [];
+      }
+
+      final questions =
+          (response as List).map((json) => Question.fromJson(json)).toList();
+      print('Successfully parsed ${questions.length} questions');
+      return questions;
+    } catch (e) {
+      print('Error fetching questions by tag and sub_tag: $e');
+      return [];
+    }
+  }
+
   // Add a new question
   static Future<bool> addQuestion(Question question) async {
     try {

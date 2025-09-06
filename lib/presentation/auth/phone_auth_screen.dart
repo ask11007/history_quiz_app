@@ -221,13 +221,13 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen>
                 // Google Sign In Button
                 SizedBox(
                   width: double.infinity,
-                  height: 6.h,
+                  height: 7.h,
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _signInWithGoogle,
                     icon: _isLoading
                         ? SizedBox(
-                            width: 4.w,
-                            height: 4.w,
+                            width: 6.w,
+                            height: 6.w,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(
@@ -235,10 +235,20 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen>
                               ),
                             ),
                           )
-                        : CustomIconWidget(
-                            iconName: 'google',
-                            size: 5.w,
-                            color: Colors.white,
+                        : Container(
+                            width: 8.w,
+                            height: 8.w,
+                            padding: EdgeInsets.all(0.5.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: SvgPicture.asset(
+                              'assets/images/google-logo.svg',
+                              width: 6.w,
+                              height: 6.w,
+                              fit: BoxFit.contain,
+                            ),
                           ),
                     label: Text(
                       _isLoading ? 'Signing in...' : 'Continue with Google',
@@ -252,7 +262,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen>
                       foregroundColor: Colors.white,
                       elevation: 2,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
                   ),

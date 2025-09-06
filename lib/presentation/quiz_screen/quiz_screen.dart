@@ -80,16 +80,26 @@ class _QuizScreenState extends State<QuizScreen> {
             args['subjectName'] ??
             ''; // Use subjectTag if available, fallback to subjectName
 
+        // Check if this is a sub-topic quiz (has subjectSubTag)
+        final subjectSubTag = args['subjectSubTag'] as String?;
+
         print(
-            'Loading quiz data for subject: $_subjectName, tag: $_subjectTag');
+            'Loading quiz data for subject: $_subjectName, tag: $_subjectTag, sub_tag: $subjectSubTag');
 
         // TEMP FIX: Skip connectivity check and try Supabase directly
         print('Skipping connectivity check, testing Supabase directly...');
 
         if (_subjectTag.isNotEmpty) {
-          // Fetch questions from Supabase based on tag
-          final questions =
-              await SupabaseService.getQuestionsByTag(_subjectTag);
+          List<Question> questions;
+
+          if (subjectSubTag != null && subjectSubTag.isNotEmpty) {
+            // Fetch questions by both tag and sub_tag
+            questions = await SupabaseService.getQuestionsByTagAndSubTag(
+                _subjectTag, subjectSubTag);
+          } else {
+            // Fetch questions by tag only (original behavior)
+            questions = await SupabaseService.getQuestionsByTag(_subjectTag);
+          }
 
           if (questions.isNotEmpty) {
             setState(() {
@@ -99,9 +109,10 @@ class _QuizScreenState extends State<QuizScreen> {
               _errorMessage = '';
             });
             print(
-                'Successfully loaded ${questions.length} questions from Supabase for tag: $_subjectTag');
+                'Successfully loaded ${questions.length} questions from Supabase for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
           } else {
-            print('No questions found for tag: $_subjectTag');
+            print(
+                'No questions found for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
             setState(() {
               _quizData = [];
               _isLoading = false;

@@ -44,26 +44,7 @@ class SubjectCardWidget extends StatelessWidget {
           padding: EdgeInsets.all(4.w),
           child: Row(
             children: [
-              // Subject logo on the left
-              Container(
-                width: 15.w,
-                height: 15.w,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: CustomIconWidget(
-                    iconName: iconName,
-                    color: Colors.white,
-                    size: 8.w,
-                  ),
-                ),
-              ),
-              
-              SizedBox(width: 4.w),
-              
-              // Subject information on the right - only show subject name
+              // Subject information - just text, no icon
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,11 +52,11 @@ class SubjectCardWidget extends StatelessWidget {
                   children: [
                     Text(
                       subjectName,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 1,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -87,8 +68,6 @@ class SubjectCardWidget extends StatelessWidget {
       ),
     );
   }
-
-
 
   void _showContextMenu(BuildContext context) {
     showModalBottomSheet(
