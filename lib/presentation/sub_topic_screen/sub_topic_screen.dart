@@ -297,17 +297,26 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                               SizedBox(height: 2.h),
                               Text(
                                 'No Internet Connection',
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  color: Theme.of(context).colorScheme.error,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.error,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                               ),
                               SizedBox(height: 1.h),
                               Text(
                                 'Please check your internet connection\nto load sub-topics.',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                                 textAlign: TextAlign.center,
                               ),
                               SizedBox(height: 3.h),
@@ -322,14 +331,19 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                                 icon: Icon(Icons.refresh, color: Colors.white),
                                 label: Text(
                                   'Retry',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).colorScheme.primary,
-                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 6.w, vertical: 1.5.h),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),

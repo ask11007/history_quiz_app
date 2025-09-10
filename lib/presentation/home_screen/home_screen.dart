@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _subjectsData = [];
   bool _isLoadingSubjects = false;
   bool _hasConnectionError = false;
+  StreamSubscription<bool>? _connectivitySubscription;
   final ConnectivityService _connectivityService = ConnectivityService();
 
   @override
@@ -43,24 +45,34 @@ class _HomeScreenState extends State<HomeScreen> {
       // Initialize connectivity service
       _connectivityService.initialize();
 
-      // Listen for connectivity changes
-      _connectivityService.onConnectivityChanged = (bool isConnected) {
-        print('Connectivity changed: $isConnected');
-        if (isConnected) {
-          // Reload subjects when connection is restored
-          setState(() {
-            _hasConnectionError = false;
-          });
-          _loadSubjects();
-        } else {
-          // Show no internet connection message
-          setState(() {
-            _subjectsData = [];
-            _isLoadingSubjects = false;
-            _hasConnectionError = true;
-          });
-        }
-      };
+      // Listen for real-time connectivity changes via stream
+      _connectivitySubscription =
+          _connectivityService.connectivityStream.listen(
+        (bool isConnected) {
+          print('📡 Real-time connectivity changed: $isConnected');
+          if (mounted) {
+            if (isConnected) {
+              // Connection restored - reload subjects immediately
+              print('✅ Connection restored - reloading subjects...');
+              setState(() {
+                _hasConnectionError = false;
+              });
+              _loadSubjects();
+            } else {
+              // Connection lost - show error immediately
+              print('❌ Connection lost - showing offline state...');
+              setState(() {
+                _subjectsData = [];
+                _isLoadingSubjects = false;
+                _hasConnectionError = true;
+              });
+            }
+          }
+        },
+        onError: (error) {
+          print('❌ Connectivity stream error: $error');
+        },
+      );
 
       // Load subjects based on connectivity
       _loadSubjects();
@@ -70,17 +82,20 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     // Clean up connectivity listener
-    _connectivityService.onConnectivityChanged = null;
+    _connectivitySubscription?.cancel();
+    _connectivityService.dispose();
     super.dispose();
   }
 
   Future<void> _loadSubjectsFromSupabase() async {
     try {
-      // Add timeout to prevent infinite loading
+      print('💾 Loading subjects from Supabase database...');
+
+      // Reduce timeout for faster feedback
       final tags = await SupabaseService.getAvailableTags().timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 5),
         onTimeout: () {
-          print('Supabase request timed out');
+          print('⚠️ Supabase request timed out after 5 seconds');
           return <String>[];
         },
       );
@@ -142,14 +157,14 @@ class _HomeScreenState extends State<HomeScreen> {
         _cachedSubjectsData = List.from(subjects);
         _hasLoadedOnce = true;
 
-        // Debug logging
-        print('Loaded ${subjects.length} subjects from Supabase:');
+        print(
+            '✅ Successfully loaded ${subjects.length} subjects from Supabase:');
         for (var subject in subjects) {
-          print('  ${subject["name"]} (${subject["originalTag"]})');
+          print('  - ${subject["name"]} (${subject["originalTag"]})');
         }
       } else {
-        // No tags found in database
-        print('No tags found in Supabase database');
+        // No tags found in database - treat as connectivity issue
+        print('❌ No tags found in Supabase database');
         setState(() {
           _subjectsData = [];
           _isLoadingSubjects = false;
@@ -157,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error loading subjects from Supabase: $e');
+      print('❌ Error loading subjects from Supabase: $e');
       setState(() {
         _subjectsData = [];
         _isLoadingSubjects = false;
@@ -169,16 +184,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadSubjects() async {
     if (_isLoadingSubjects) return; // Prevent multiple simultaneous loads
 
+    print('📶 Starting to load subjects...');
     setState(() {
       _isLoadingSubjects = true;
       _hasConnectionError = false;
     });
 
     try {
-      // Check connectivity before attempting to load
+      // Check connectivity with real internet test
       final hasInternet = await _connectivityService.hasInternetConnection();
       if (!hasInternet) {
-        print('No internet connection detected');
+        print('❌ No internet connection detected');
         setState(() {
           _subjectsData = [];
           _isLoadingSubjects = false;
@@ -187,11 +203,11 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
 
-      print('Loading subjects from Supabase...');
+      print('✅ Internet connection confirmed - loading from Supabase...');
       // Try to load from Supabase
       await _loadSubjectsFromSupabase();
     } catch (e) {
-      print('Error in _loadSubjects: $e');
+      print('❌ Error in _loadSubjects: $e');
       setState(() {
         _subjectsData = [];
         _isLoadingSubjects = false;
@@ -376,26 +392,42 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(height: 2.h),
                           Text(
                             'No Internet Connection',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                           SizedBox(height: 1.h),
                           Text(
                             'Please check your internet connection\nand try again.',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
                             textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 3.h),
                           ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
+                              print('🔄 Manual retry requested...');
                               setState(() {
                                 _hasConnectionError = false;
                                 _isLoadingSubjects = true;
                               });
+
+                              // Force immediate connectivity check
+                              await _connectivityService
+                                  .forceConnectivityCheck();
+
+                              // Add small delay to show loading state
+                              await Future.delayed(Duration(milliseconds: 200));
                               _loadSubjects();
                             },
                             icon: CustomIconWidget(
@@ -405,14 +437,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             label: Text(
                               'Retry',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.primary,
-                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 6.w, vertical: 1.5.h),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -459,40 +496,46 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refreshData() async {
+    print('🔄 Manual refresh triggered...');
+
+    // Reset error state
     setState(() {
+      _hasConnectionError = false;
       _isLoadingSubjects = true;
     });
 
-    // Force reload subjects from Supabase
-    await _loadSubjectsFromSupabase();
+    // Force reload subjects from Supabase with fresh connectivity check
+    await _loadSubjects();
 
-    // Show refresh feedback
-    HapticFeedback.lightImpact();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            CustomIconWidget(
-              iconName: 'refresh',
-              color: Colors.white,
-              size: 20,
-            ),
-            SizedBox(width: 2.w),
-            Text(
-              'Topics refreshed successfully',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white,
-                  ),
-            ),
-          ],
+    // Show refresh feedback only if successful
+    if (mounted && !_hasConnectionError) {
+      HapticFeedback.lightImpact();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              CustomIconWidget(
+                iconName: 'refresh',
+                color: Colors.white,
+                size: 20,
+              ),
+              SizedBox(width: 2.w),
+              Text(
+                'Topics refreshed successfully',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.all(4.w),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(4.w),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
+      );
+    }
   }
 }

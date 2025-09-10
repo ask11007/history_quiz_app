@@ -80,18 +80,19 @@ class _QuizScreenState extends State<QuizScreen> {
         _subjectTag = args['subjectTag'] ??
             args['subjectName'] ??
             ''; // Use subjectTag if available, fallback to subjectName
-        
+
         // Get sub-topic information
         final subjectSubTag = args['subjectSubTag'] as String?;
-        _subTopicName = args['subTopicName'] ?? ''; // Only use sub-topic name, no fallback
+        _subTopicName =
+            args['subTopicName'] ?? ''; // Only use sub-topic name, no fallback
 
         print(
             'Loading quiz data for subject: $_subjectName, tag: $_subjectTag, sub_tag: $subjectSubTag');
 
-        // Check connectivity before attempting to load questions
+        // Check connectivity with real internet test before attempting to load questions
         final hasInternet = await _connectivityService.hasInternetConnection();
         if (!hasInternet) {
-          print('No internet connection detected');
+          print('❌ No internet connection detected for quiz loading');
           setState(() {
             _quizData = [];
             _isLoading = false;
@@ -100,6 +101,8 @@ class _QuizScreenState extends State<QuizScreen> {
           });
           return;
         }
+
+        print('✅ Internet connection confirmed - loading quiz questions...');
 
         if (_subjectTag.isNotEmpty) {
           List<Question> questions;
@@ -246,8 +249,8 @@ class _QuizScreenState extends State<QuizScreen> {
         title: Text(
           'Quiz Completed!',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+                fontWeight: FontWeight.w600,
+              ),
           textAlign: TextAlign.center,
         ),
         content: Padding(
@@ -259,9 +262,9 @@ class _QuizScreenState extends State<QuizScreen> {
               Text(
                 _subTopicName,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 3.h),
@@ -310,9 +313,9 @@ class _QuizScreenState extends State<QuizScreen> {
                   child: Text(
                     '❌ Cancel',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.w500,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                 ),
               ),
@@ -333,9 +336,9 @@ class _QuizScreenState extends State<QuizScreen> {
                   child: Text(
                     '🏠 Home',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ),
               ),
@@ -352,15 +355,15 @@ class _QuizScreenState extends State<QuizScreen> {
         Text(
           value,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            color: color,
-            fontWeight: FontWeight.bold,
-          ),
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
         ),
         Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
         ),
       ],
     );
@@ -520,9 +523,9 @@ class _QuizScreenState extends State<QuizScreen> {
               Text(
                 'No Internet Connection',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               SizedBox(height: 1.h),
               Text(
@@ -530,8 +533,8 @@ class _QuizScreenState extends State<QuizScreen> {
                     ? _errorMessage
                     : 'Please check your internet connection\nand try again to load questions.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 3.h),
@@ -548,12 +551,13 @@ class _QuizScreenState extends State<QuizScreen> {
                     label: Text(
                       'Go Back',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 4.w, vertical: 1.5.h),
                       side: BorderSide(
                         color: Theme.of(context).colorScheme.primary,
                         width: 1.5,
@@ -565,12 +569,19 @@ class _QuizScreenState extends State<QuizScreen> {
                   ),
                   SizedBox(width: 3.w),
                   ElevatedButton.icon(
-                    onPressed: () {
+                    onPressed: () async {
+                      print('🔄 Manual quiz retry requested...');
                       setState(() {
                         _hasLoadedData = false;
                         _hasDataLoadError = false;
                         _errorMessage = '';
                       });
+
+                      // Force immediate connectivity check
+                      await _connectivityService.forceConnectivityCheck();
+
+                      // Add small delay to show loading state
+                      await Future.delayed(Duration(milliseconds: 200));
                       _loadQuizData();
                     },
                     icon: CustomIconWidget(
@@ -581,13 +592,14 @@ class _QuizScreenState extends State<QuizScreen> {
                     label: Text(
                       'Retry',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
-                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 4.w, vertical: 1.5.h),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -682,8 +694,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 side: BorderSide(
-                                  color:
-                                      Theme.of(context).colorScheme.primary,
+                                  color: Theme.of(context).colorScheme.primary,
                                   width: 1.5,
                                 ),
                               ),
@@ -700,12 +711,14 @@ class _QuizScreenState extends State<QuizScreen> {
                                   Text(
                                     'Previous',
                                     style: Theme.of(context)
-                                        .textTheme.titleMedium
+                                        .textTheme
+                                        .titleMedium
                                         ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                 ],
                               ),
@@ -743,11 +756,12 @@ class _QuizScreenState extends State<QuizScreen> {
                                   Text(
                                     'Next',
                                     style: Theme.of(context)
-                                        .textTheme.titleMedium
+                                        .textTheme
+                                        .titleMedium
                                         ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                   SizedBox(width: 2.w),
                                   CustomIconWidget(
@@ -780,11 +794,12 @@ class _QuizScreenState extends State<QuizScreen> {
                                   Text(
                                     'Finish',
                                     style: Theme.of(context)
-                                        .textTheme.titleMedium
+                                        .textTheme
+                                        .titleMedium
                                         ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                   ),
                                   SizedBox(width: 2.w),
                                   CustomIconWidget(
