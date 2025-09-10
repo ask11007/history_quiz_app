@@ -85,7 +85,7 @@ class OptionCardWidget extends StatelessWidget {
           // ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.lightTheme.colorScheme.shadow,
+              color: Theme.of(context).colorScheme.shadow,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

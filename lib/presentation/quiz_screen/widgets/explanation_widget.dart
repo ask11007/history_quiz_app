@@ -63,12 +63,12 @@ class _ExplanationWidgetState extends State<ExplanationWidget>
       width: double.infinity,
       margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
       decoration: BoxDecoration(
-        color: AppTheme.lightTheme.colorScheme.secondaryContainer
+        color: Theme.of(context).colorScheme.secondaryContainer
             .withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color:
-              AppTheme.lightTheme.colorScheme.secondary.withValues(alpha: 0.3),
+              Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -84,13 +84,13 @@ class _ExplanationWidgetState extends State<ExplanationWidget>
                   Container(
                     padding: EdgeInsets.all(2.w),
                     decoration: BoxDecoration(
-                      color: AppTheme.lightTheme.colorScheme.secondary
+                      color: Theme.of(context).colorScheme.secondary
                           .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: CustomIconWidget(
                       iconName: 'lightbulb',
-                      color: AppTheme.lightTheme.colorScheme.secondary,
+                      color: Theme.of(context).colorScheme.secondary,
                       size: 20,
                     ),
                   ),
@@ -99,8 +99,8 @@ class _ExplanationWidgetState extends State<ExplanationWidget>
                     child: Text(
                       'Explanation',
                       style:
-                          AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-                        color: AppTheme.lightTheme.colorScheme.onSurface,
+                          Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -110,7 +110,7 @@ class _ExplanationWidgetState extends State<ExplanationWidget>
                     duration: const Duration(milliseconds: 300),
                     child: CustomIconWidget(
                       iconName: 'keyboard_arrow_down',
-                      color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       size: 24,
                     ),
                   ),
@@ -129,14 +129,14 @@ class _ExplanationWidgetState extends State<ExplanationWidget>
                   Container(
                     width: double.infinity,
                     height: 1,
-                    color: AppTheme.lightTheme.colorScheme.outline
+                    color: Theme.of(context).colorScheme.outline
                         .withValues(alpha: 0.2),
                   ),
                   SizedBox(height: 2.h),
                   Text(
                     widget.explanation,
-                    style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-                      color: AppTheme.lightTheme.colorScheme.onSurface,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
                       height: 1.5,
                     ),
                   ),

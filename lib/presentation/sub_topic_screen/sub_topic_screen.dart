@@ -170,10 +170,10 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
               decoration: BoxDecoration(
-                color: AppTheme.lightTheme.colorScheme.surface,
+                color: Theme.of(context).colorScheme.surface,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.lightTheme.colorScheme.shadow,
+                    color: Theme.of(context).colorScheme.shadow,
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -186,16 +186,16 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                     child: Container(
                       padding: EdgeInsets.all(2.w),
                       decoration: BoxDecoration(
-                        color: AppTheme.lightTheme.colorScheme.surface,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: AppTheme.lightTheme.colorScheme.outline,
+                          color: Theme.of(context).colorScheme.outline,
                           width: 1,
                         ),
                       ),
                       child: CustomIconWidget(
                         iconName: 'arrow_back',
-                        color: AppTheme.lightTheme.colorScheme.onSurface,
+                        color: Theme.of(context).colorScheme.onSurface,
                         size: 20,
                       ),
                     ),
@@ -204,10 +204,10 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                   Expanded(
                     child: Text(
                       _subjectName,
-                      style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.lightTheme.colorScheme.onSurface,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -255,8 +255,17 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                             SizedBox(height: 3.h),
                             Expanded(
                               child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 2.w),
-                                child: ListView.builder(
+                                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                                child: GridView.builder(
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2, // 2 sub-topics per row
+                                    crossAxisSpacing:
+                                        3.w, // Space between columns
+                                    mainAxisSpacing: 2.h, // Space between rows
+                                    childAspectRatio:
+                                        1.5, // Width to height ratio
+                                  ),
                                   itemCount: _subTopicsData.length,
                                   itemBuilder: (context, index) {
                                     final subTopic = _subTopicsData[index];

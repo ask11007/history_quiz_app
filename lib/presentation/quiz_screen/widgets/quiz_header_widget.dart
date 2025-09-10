@@ -22,10 +22,10 @@ class QuizHeaderWidget extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppTheme.lightTheme.colorScheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: AppTheme.lightTheme.colorScheme.shadow,
+            color: Theme.of(context).colorScheme.shadow,
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -42,16 +42,16 @@ class QuizHeaderWidget extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.all(1.5.w),
                   decoration: BoxDecoration(
-                    color: AppTheme.lightTheme.colorScheme.surface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: AppTheme.lightTheme.colorScheme.outline,
+                      color: Theme.of(context).colorScheme.outline,
                       width: 1,
                     ),
                   ),
                   child: CustomIconWidget(
                     iconName: 'arrow_back',
-                    color: AppTheme.lightTheme.colorScheme.onSurface,
+                    color: Theme.of(context).colorScheme.onSurface,
                     size: 20,
                   ),
                 ),
@@ -60,10 +60,10 @@ class QuizHeaderWidget extends StatelessWidget {
               Expanded(
                 child: Text(
                   subTopicName,
-                  style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w400,
-                    color: AppTheme.lightTheme.colorScheme.onSurface,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

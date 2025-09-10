@@ -326,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              // Subjects list
+              // Subjects grid
               if (_isLoadingSubjects)
                 SliverToBoxAdapter(
                   child: Container(
@@ -349,8 +349,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               else if (_subjectsData.isNotEmpty)
                 SliverPadding(
-                  padding: EdgeInsets.symmetric(horizontal: 2.w),
-                  sliver: SliverList(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // 2 subjects per row
+                      crossAxisSpacing: 3.w, // Space between columns
+                      mainAxisSpacing: 2.h, // Space between rows
+                      childAspectRatio: 1.5, // Width to height ratio
+                    ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         final subject = _subjectsData[index];

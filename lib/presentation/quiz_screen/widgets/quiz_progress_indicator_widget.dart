@@ -26,11 +26,11 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
       height: 7.h,
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 0.4.h),
       decoration: BoxDecoration(
-        color: AppTheme.lightTheme.colorScheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
             color:
-                AppTheme.lightTheme.colorScheme.shadow.withValues(alpha: 0.1),
+                Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -43,14 +43,14 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
             children: [
               Text(
                 'Progress',
-                style: AppTheme.lightTheme.textTheme.titleSmall?.copyWith(
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
               ),
               Text(
                 '${quizStateManager.getTotalAnsweredCount()}/$totalQuestions answered',
-                style: AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
-                  color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -87,7 +87,7 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(7),
                       border: isCurrentQuestion
                           ? Border.all(
-                              color: AppTheme.lightTheme.colorScheme.primary,
+                              color: Theme.of(context).colorScheme.primary,
                               width: 1.5,
                             )
                           : null,
@@ -96,7 +96,7 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
                       child: Text(
                         '${index + 1}',
                         style:
-                            AppTheme.lightTheme.textTheme.bodySmall?.copyWith(
+                            Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: _getQuestionIndicatorTextColor(
                             context,
                             isCurrentQuestion,
@@ -134,10 +134,10 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
       return Color(0xFFFF8C00);
     } else if (isCurrentQuestion) {
       // Current question - light primary
-      return AppTheme.lightTheme.colorScheme.primaryContainer;
+      return Theme.of(context).colorScheme.primaryContainer;
     } else {
       // Unanswered questions - gray
-      return AppTheme.lightTheme.colorScheme.outline.withValues(alpha: 0.3);
+      return Theme.of(context).colorScheme.outline.withValues(alpha: 0.3);
     }
   }
 
@@ -151,9 +151,9 @@ class QuizProgressIndicatorWidget extends StatelessWidget {
     if (isAnswered || isSelected) {
       return Colors.white;
     } else if (isCurrentQuestion) {
-      return AppTheme.lightTheme.colorScheme.onPrimaryContainer;
+      return Theme.of(context).colorScheme.onPrimaryContainer;
     } else {
-      return AppTheme.lightTheme.colorScheme.onSurfaceVariant;
+      return Theme.of(context).colorScheme.onSurfaceVariant;
     }
   }
 }

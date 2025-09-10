@@ -235,7 +235,7 @@ class _QuizScreenState extends State<QuizScreen> {
       builder: (context) => AlertDialog(
         title: Text(
           'Quiz Completed!',
-          style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w600,
           ),
           textAlign: TextAlign.center,
@@ -248,8 +248,8 @@ class _QuizScreenState extends State<QuizScreen> {
               // Subject name
               Text(
                 _subTopicName,
-                style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-                  color: AppTheme.lightTheme.colorScheme.primary,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
@@ -293,14 +293,14 @@ class _QuizScreenState extends State<QuizScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     side: BorderSide(
-                      color: AppTheme.lightTheme.colorScheme.outline,
+                      color: Theme.of(context).colorScheme.outline,
                       width: 1.5,
                     ),
                   ),
                   child: Text(
                     '❌ Cancel',
-                    style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-                      color: AppTheme.lightTheme.colorScheme.onSurface,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -315,14 +315,14 @@ class _QuizScreenState extends State<QuizScreen> {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                    backgroundColor: AppTheme.lightTheme.colorScheme.primary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
                     '🏠 Home',
-                    style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
@@ -341,15 +341,15 @@ class _QuizScreenState extends State<QuizScreen> {
       children: [
         Text(
           value,
-          style: AppTheme.lightTheme.textTheme.headlineSmall?.copyWith(
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
             color: color,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
           label,
-          style: AppTheme.lightTheme.textTheme.bodyMedium?.copyWith(
-            color: AppTheme.lightTheme.colorScheme.onSurfaceVariant,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -469,23 +469,23 @@ class _QuizScreenState extends State<QuizScreen> {
 
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircularProgressIndicator(
-                color: AppTheme.lightTheme.colorScheme.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(height: 2.h),
               Text(
                 'Loading questions...',
-                style: AppTheme.lightTheme.textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               SizedBox(height: 1.h),
               Text(
                 'Sub Topic: $_subTopicName\nTopic: $_subjectName',
-                style: AppTheme.lightTheme.textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -552,7 +552,7 @@ class _QuizScreenState extends State<QuizScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: AppTheme.lightTheme.scaffoldBackgroundColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         floatingActionButton: null,
         body: Column(
           children: [
@@ -602,10 +602,10 @@ class _QuizScreenState extends State<QuizScreen> {
             if (_quizData.length > 1)
               Container(
                 decoration: BoxDecoration(
-                  color: AppTheme.lightTheme.colorScheme.surface,
+                  color: Theme.of(context).colorScheme.surface,
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.lightTheme.colorScheme.shadow,
+                      color: Theme.of(context).colorScheme.shadow,
                       blurRadius: 8,
                       offset: const Offset(0, -2),
                     ),
@@ -631,7 +631,7 @@ class _QuizScreenState extends State<QuizScreen> {
                                 ),
                                 side: BorderSide(
                                   color:
-                                      AppTheme.lightTheme.colorScheme.primary,
+                                      Theme.of(context).colorScheme.primary,
                                   width: 1.5,
                                 ),
                               ),
@@ -641,17 +641,17 @@ class _QuizScreenState extends State<QuizScreen> {
                                   CustomIconWidget(
                                     iconName: 'arrow_back',
                                     color:
-                                        AppTheme.lightTheme.colorScheme.primary,
+                                        Theme.of(context).colorScheme.primary,
                                     size: 20,
                                   ),
                                   SizedBox(width: 2.w),
                                   Text(
                                     'Previous',
-                                    style: AppTheme
-                                        .lightTheme.textTheme.titleMedium
+                                    style: Theme.of(context)
+                                        .textTheme.titleMedium
                                         ?.copyWith(
-                                      color: AppTheme
-                                          .lightTheme.colorScheme.primary,
+                                      color: Theme.of(context)
+                                          .colorScheme.primary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -677,7 +677,7 @@ class _QuizScreenState extends State<QuizScreen> {
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.symmetric(vertical: 1.5.h),
                                 backgroundColor:
-                                    AppTheme.lightTheme.colorScheme.primary,
+                                    Theme.of(context).colorScheme.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -690,8 +690,8 @@ class _QuizScreenState extends State<QuizScreen> {
                                 children: [
                                   Text(
                                     'Next',
-                                    style: AppTheme
-                                        .lightTheme.textTheme.titleMedium
+                                    style: Theme.of(context)
+                                        .textTheme.titleMedium
                                         ?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
@@ -714,7 +714,7 @@ class _QuizScreenState extends State<QuizScreen> {
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.symmetric(vertical: 1.5.h),
                                 backgroundColor:
-                                    AppTheme.lightTheme.colorScheme.primary,
+                                    Theme.of(context).colorScheme.primary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -727,8 +727,8 @@ class _QuizScreenState extends State<QuizScreen> {
                                 children: [
                                   Text(
                                     'Finish',
-                                    style: AppTheme
-                                        .lightTheme.textTheme.titleMedium
+                                    style: Theme.of(context)
+                                        .textTheme.titleMedium
                                         ?.copyWith(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
