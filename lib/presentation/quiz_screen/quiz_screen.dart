@@ -37,6 +37,7 @@ class _QuizScreenState extends State<QuizScreen> {
   List<Question> _quizData = [];
   String _subjectName = '';
   String _subjectTag = '';
+  String _subTopicName = ''; // Added for storing sub-topic name
   final ConnectivityService _connectivityService = ConnectivityService();
 
   final List<String> _optionLabels = ['A', 'B', 'C', 'D'];
@@ -79,9 +80,10 @@ class _QuizScreenState extends State<QuizScreen> {
         _subjectTag = args['subjectTag'] ??
             args['subjectName'] ??
             ''; // Use subjectTag if available, fallback to subjectName
-
-        // Check if this is a sub-topic quiz (has subjectSubTag)
+        
+        // Get sub-topic information
         final subjectSubTag = args['subjectSubTag'] as String?;
+        _subTopicName = args['subTopicName'] ?? ''; // Only use sub-topic name, no fallback
 
         print(
             'Loading quiz data for subject: $_subjectName, tag: $_subjectTag, sub_tag: $subjectSubTag');
@@ -245,7 +247,7 @@ class _QuizScreenState extends State<QuizScreen> {
             children: [
               // Subject name
               Text(
-                _subjectName,
+                _subTopicName,
                 style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
                   color: AppTheme.lightTheme.colorScheme.primary,
                   fontWeight: FontWeight.w600,
@@ -283,12 +285,7 @@ class _QuizScreenState extends State<QuizScreen> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.pop(context); // Close dialog
-                    // Reset quiz state and restart
-                    _quizStateManager.reset();
-                    setState(() {
-                      _currentQuestionIndex = 0;
-                    });
+                    Navigator.pop(context); // Close dialog only
                   },
                   style: OutlinedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 1.5.h),
@@ -296,15 +293,15 @@ class _QuizScreenState extends State<QuizScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     side: BorderSide(
-                      color: AppTheme.lightTheme.colorScheme.primary,
+                      color: AppTheme.lightTheme.colorScheme.outline,
                       width: 1.5,
                     ),
                   ),
                   child: Text(
-                    'Retake',
+                    '❌ Cancel',
                     style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
-                      color: AppTheme.lightTheme.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
+                      color: AppTheme.lightTheme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -314,7 +311,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context); // Close dialog
-                    Navigator.pushReplacementNamed(context, '/main-navigation');
+                    Navigator.pop(context); // Go back to subtopic screen
                   },
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 1.5.h),
@@ -324,7 +321,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                   ),
                   child: Text(
-                    'Go Home',
+                    '🏠 Home',
                     style: AppTheme.lightTheme.textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
@@ -487,7 +484,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               SizedBox(height: 1.h),
               Text(
-                'Subject: $_subjectName\nTag: $_subjectTag',
+                'Sub Topic: $_subTopicName\nTopic: $_subjectName',
                 style: AppTheme.lightTheme.textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
@@ -560,11 +557,10 @@ class _QuizScreenState extends State<QuizScreen> {
         body: Column(
           children: [
             QuizHeaderWidget(
-              subjectName: _subjectName,
+              subTopicName: _subTopicName,
               currentQuestion: _currentQuestionIndex + 1,
               totalQuestions: _quizData.length,
-              onBackPressed: () =>
-                  Navigator.pushReplacementNamed(context, '/main-navigation'),
+              onBackPressed: () => Navigator.pop(context),
             ),
             QuizProgressIndicatorWidget(
               totalQuestions: _quizData.length,

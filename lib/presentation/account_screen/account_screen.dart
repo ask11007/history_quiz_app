@@ -298,30 +298,6 @@ class _AccountScreenState extends State<AccountScreen>
                       iconName: 'person',
                       onTap: _showEditNameDialog,
                     ),
-                    SettingsItem(
-                      title: 'Change Password',
-                      subtitle: 'Update your account password',
-                      iconName: 'lock',
-                      onTap: () {
-                        Fluttertoast.showToast(
-                          msg: "Change password feature coming soon!",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                        );
-                      },
-                    ),
-                    SettingsItem(
-                      title: 'Privacy Settings',
-                      subtitle: 'Manage your privacy preferences',
-                      iconName: 'privacy_tip',
-                      onTap: () {
-                        Fluttertoast.showToast(
-                          msg: "Privacy settings feature coming soon!",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.BOTTOM,
-                        );
-                      },
-                    ),
                   ],
                 ),
                 SizedBox(height: 1.h),

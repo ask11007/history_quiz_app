@@ -4,14 +4,14 @@ import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
 
 class QuizHeaderWidget extends StatelessWidget {
-  final String subjectName;
+  final String subTopicName; // Renamed to be more explicit
   final int currentQuestion;
   final int totalQuestions;
   final VoidCallback? onBackPressed;
 
   const QuizHeaderWidget({
     Key? key,
-    required this.subjectName,
+    required this.subTopicName, // Renamed parameter
     required this.currentQuestion,
     required this.totalQuestions,
     this.onBackPressed,
@@ -59,7 +59,7 @@ class QuizHeaderWidget extends StatelessWidget {
               SizedBox(width: 4.w),
               Expanded(
                 child: Text(
-                  subjectName,
+                  subTopicName,
                   style: AppTheme.lightTheme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w400,
                     color: AppTheme.lightTheme.colorScheme.onSurface,

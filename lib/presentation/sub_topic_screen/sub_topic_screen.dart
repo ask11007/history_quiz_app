@@ -150,9 +150,10 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
       '/quiz-screen',
       arguments: {
         'subjectId': subTopic["id"],
-        'subjectName': '$_subjectName - ${subTopic["name"]}',
+        'subjectName': _subjectName,
         'subjectTag': subTopic["tag"], // Main subject tag
         'subjectSubTag': subTopic["subTag"], // Sub-topic tag
+        'subTopicName': subTopic["name"], // Pass only sub-topic name for header
         'totalQuestions': subTopic["totalQuestions"],
       },
     );

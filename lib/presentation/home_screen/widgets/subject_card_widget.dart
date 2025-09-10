@@ -30,8 +30,8 @@ class SubjectCardWidget extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 1.h, horizontal: 2.w),
         decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16),
+          color: backgroundColor ,
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
               color: Theme.of(context).colorScheme.shadow,
