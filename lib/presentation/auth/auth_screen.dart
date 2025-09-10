@@ -8,14 +8,14 @@ import '../../core/app_export.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/custom_icon_widget.dart';
 
-class PhoneAuthScreen extends StatefulWidget {
-  const PhoneAuthScreen({Key? key}) : super(key: key);
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({Key? key}) : super(key: key);
 
   @override
-  State<PhoneAuthScreen> createState() => _PhoneAuthScreenState();
+  State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _PhoneAuthScreenState extends State<PhoneAuthScreen>
+class _AuthScreenState extends State<AuthScreen>
     with TickerProviderStateMixin {
   bool _isLoading = false;
 

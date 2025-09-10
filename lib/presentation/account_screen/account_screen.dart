@@ -181,7 +181,7 @@ class _AccountScreenState extends State<AccountScreen>
       if (mounted) {
         // Navigate to login screen immediately after sign out
         Navigator.of(context).pushNamedAndRemoveUntil(
-          '/phone-auth',
+          '/auth',
           (route) => false, // Remove all previous routes
         );
 

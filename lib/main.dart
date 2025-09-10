@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';
@@ -10,10 +9,9 @@ import '../theme/theme_provider.dart';
 import '../providers/user_provider.dart';
 import '../core/services/supabase_service.dart';
 import '../core/services/connectivity_service.dart';
-import '../presentation/auth/phone_auth_screen.dart';
+import '../presentation/auth/auth_screen.dart';
 import '../presentation/auth/profile_setup_screen.dart';
 import '../presentation/main_navigation_screen.dart';
-import '../widgets/custom_icon_widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -122,8 +120,8 @@ class AuthWrapper extends StatelessWidget {
           print('AuthWrapper: Routing to MainNavigationScreen');
           return MainNavigationScreen();
         } else {
-          print('AuthWrapper: Routing to PhoneAuthScreen');
-          return PhoneAuthScreen();
+          print('AuthWrapper: Routing to AuthScreen');
+          return AuthScreen();
         }
       },
     );

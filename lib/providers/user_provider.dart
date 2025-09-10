@@ -94,64 +94,7 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  // Sign in with phone number (OTP)
-  Future<bool> signInWithPhone(String phoneNumber) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
 
-      print('Starting phone authentication for: $phoneNumber');
-
-      await SupabaseService.client.auth.signInWithOtp(
-        phone: phoneNumber,
-      );
-
-      print('OTP sent successfully to: $phoneNumber');
-      return true;
-    } on AuthException catch (e) {
-      print('Phone auth error: ${e.message}');
-      throw Exception(e.message);
-    } catch (e) {
-      print('Phone sign in error: $e');
-      throw Exception('Failed to send OTP');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  // Verify phone OTP
-  Future<bool> verifyPhoneOTP(String phoneNumber, String otp) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      print('Verifying OTP for: $phoneNumber');
-
-      final response = await SupabaseService.client.auth.verifyOTP(
-        phone: phoneNumber,
-        token: otp,
-        type: OtpType.sms,
-      );
-
-      if (response.user != null) {
-        _currentUser = response.user;
-        _isAuthenticated = true;
-        print('Phone verification successful: ${_currentUser!.id}');
-        return true;
-      }
-      return false;
-    } on AuthException catch (e) {
-      print('OTP verification error: ${e.message}');
-      throw Exception(e.message);
-    } catch (e) {
-      print('OTP verification error: $e');
-      throw Exception('Invalid OTP code');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
 
   // Sign in with Google (Android native implementation)
   Future<bool> signInWithGoogle() async {
@@ -448,7 +391,7 @@ class UserProvider extends ChangeNotifier {
         _userData = {
           "id": _currentUser!.id,
           "name": name.trim(),
-          "email": _currentUser!.email ?? _currentUser!.phone ?? '',
+          "email": _currentUser!.email ?? '',
           "avatar": avatarUrl ??
               'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
           "totalQuizTime": '0h 0m',
@@ -784,7 +727,7 @@ class UserProvider extends ChangeNotifier {
       print('   - Authenticated: $_isAuthenticated');
       print('   - User ID: ${_currentUser?.id}');
       print('   - User email: ${_currentUser?.email}');
-      print('   - User phone: ${_currentUser?.phone}');
+
 
       // Test 2: Check auth listeners
       print('\n2. Testing auth state listeners...');
@@ -809,15 +752,7 @@ class UserProvider extends ChangeNotifier {
       print(
           '   - Auth client available: ${SupabaseService.client.auth != null}');
 
-      // Test 5: Test Phone Auth availability
-      print('\n5. Phone Auth Configuration Status:');
-      print('   - ⚠️  SMS Provider Setup Required:');
-      print('     1. Go to Supabase Dashboard → Authentication → Providers');
-      print('     2. Enable "Phone" provider');
-      print('     3. Configure SMS provider (Twilio/MessageBird)');
-      print('     4. Add your SMS credentials');
-
-      // Test 6: Test Google Auth availability
+      // Test 5: Test Google Auth availability
       print('\n6. Google Auth Configuration Status:');
       print('   - ⚠️  Google OAuth Setup Required:');
       print('     1. Go to Google Cloud Console');
@@ -960,42 +895,7 @@ class UserProvider extends ChangeNotifier {
     print('Check the console output above for detailed results.');
   }
 
-  /// Test OTP sending specifically to debug phone auth issues
-  Future<void> testOtpSending(String testPhoneNumber) async {
-    print('\n📱 === TESTING OTP SENDING ===');
-    print('Testing phone: $testPhoneNumber');
 
-    try {
-      print('1. Attempting to send OTP...');
-      final success = await signInWithPhone(testPhoneNumber);
-
-      if (success) {
-        print('✅ OTP sent successfully!');
-        print('   - Check your phone for SMS');
-        print('   - SMS provider is configured correctly');
-      } else {
-        print('❌ OTP sending failed');
-      }
-    } catch (e) {
-      print('❌ OTP Error: $e');
-
-      if (e.toString().contains('SMS')) {
-        print('\n🔧 SOLUTION: SMS Provider Not Configured');
-        print('1. Go to Supabase Dashboard');
-        print('2. Navigate to Authentication → Providers');
-        print('3. Enable Phone authentication');
-        print('4. Configure SMS provider (Twilio recommended)');
-      } else if (e.toString().contains('phone')) {
-        print('\n🔧 SOLUTION: Phone Format Issue');
-        print('- Use international format: +1234567890');
-        print('- Include country code');
-      } else {
-        print('\n🔧 SOLUTION: Check Supabase Configuration');
-        print('- Verify project URL and API key');
-        print('- Check internet connection');
-      }
-    }
-  }
 
   /// Test Google OAuth specifically
   Future<void> testGoogleAuth() async {
