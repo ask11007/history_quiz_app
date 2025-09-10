@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static bool _hasLoadedOnce = false;
   List<Map<String, dynamic>> _subjectsData = [];
   bool _isLoadingSubjects = false;
+  bool _hasConnectionError = false;
   final ConnectivityService _connectivityService = ConnectivityService();
 
   @override
@@ -47,10 +48,17 @@ class _HomeScreenState extends State<HomeScreen> {
         print('Connectivity changed: $isConnected');
         if (isConnected) {
           // Reload subjects when connection is restored
+          setState(() {
+            _hasConnectionError = false;
+          });
           _loadSubjects();
         } else {
-          // Show basic subjects when offline
-          _loadBasicSubjects();
+          // Show no internet connection message
+          setState(() {
+            _subjectsData = [];
+            _isLoadingSubjects = false;
+            _hasConnectionError = true;
+          });
         }
       };
 
@@ -140,17 +148,21 @@ class _HomeScreenState extends State<HomeScreen> {
           print('  ${subject["name"]} (${subject["originalTag"]})');
         }
       } else {
-        // No tags found, fallback to basic subjects
-        print('No tags found in Supabase, using basic subjects');
-        _loadBasicSubjects();
+        // No tags found in database
+        print('No tags found in Supabase database');
+        setState(() {
+          _subjectsData = [];
+          _isLoadingSubjects = false;
+          _hasConnectionError = true;
+        });
       }
     } catch (e) {
       print('Error loading subjects from Supabase: $e');
       setState(() {
-        _isLoadingSubjects = false; // Fix: Also set the main loading flag
+        _subjectsData = [];
+        _isLoadingSubjects = false;
+        _hasConnectionError = true;
       });
-      // Fallback to basic subjects if Supabase fails
-      _loadBasicSubjects();
     }
   }
 
@@ -159,65 +171,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       _isLoadingSubjects = true;
+      _hasConnectionError = false;
     });
 
     try {
-      // TEMP FIX: Skip connectivity check and try Supabase directly
-      print('Loading subjects (skipping connectivity check)...');
+      // Check connectivity before attempting to load
+      final hasInternet = await _connectivityService.hasInternetConnection();
+      if (!hasInternet) {
+        print('No internet connection detected');
+        setState(() {
+          _subjectsData = [];
+          _isLoadingSubjects = false;
+          _hasConnectionError = true;
+        });
+        return;
+      }
 
+      print('Loading subjects from Supabase...');
       // Try to load from Supabase
       await _loadSubjectsFromSupabase();
     } catch (e) {
       print('Error in _loadSubjects: $e');
-      // Fallback to basic subjects on any error
-      _loadBasicSubjects();
+      setState(() {
+        _subjectsData = [];
+        _isLoadingSubjects = false;
+        _hasConnectionError = true;
+      });
     }
   }
 
-  void _loadBasicSubjects() {
-    final basicSubjects = [
-      {
-        "id": 1,
-        "name": "Mathematics",
-        "originalTag": "Math",
-        "icon": "calculate",
-        "backgroundColor": Color(0xFF4F46E5), // Indigo
-        "totalQuestions": 0, // No hardcoded data
-        "bestScore": 0.0, // No hardcoded data
-        "completedQuizzes": 0,
-      },
-      {
-        "id": 2,
-        "name": "General Knowledge",
-        "originalTag": "GK",
-        "icon": "public",
-        "backgroundColor": Color(0xFF16A34A), // Green
-        "totalQuestions": 0, // No hardcoded data
-        "bestScore": 0.0, // No hardcoded data
-        "completedQuizzes": 0,
-      },
-      {
-        "id": 3,
-        "name": "Reasoning",
-        "originalTag": "Reasoning",
-        "icon": "psychology",
-        "backgroundColor": Color(0xFF8B5CF6), // Purple
-        "totalQuestions": 0, // No hardcoded data
-        "bestScore": 0.0, // No hardcoded data
-        "completedQuizzes": 0,
-      },
-    ];
-
+  void _showNoConnectionMessage() {
     setState(() {
-      _subjectsData = basicSubjects;
+      _subjectsData = [];
       _isLoadingSubjects = false;
+      _hasConnectionError = true;
     });
-
-    // Cache basic subjects too
-    if (!_hasLoadedOnce) {
-      _cachedSubjectsData = List.from(basicSubjects);
-      _hasLoadedOnce = true;
-    }
   }
 
   @override
@@ -381,20 +369,54 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         children: [
                           Icon(
-                            Icons.quiz_outlined,
+                            Icons.wifi_off,
                             size: 64,
-                            color: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.error,
                           ),
                           SizedBox(height: 2.h),
                           Text(
-                            'No Topics available',
-                            style: Theme.of(context).textTheme.titleLarge,
+                            'No Internet Connection',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                           SizedBox(height: 1.h),
                           Text(
-                            'Please check your connection.',
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            'Please check your internet connection\nand try again.',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
                             textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 3.h),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _hasConnectionError = false;
+                                _isLoadingSubjects = true;
+                              });
+                              _loadSubjects();
+                            },
+                            icon: CustomIconWidget(
+                              iconName: 'refresh',
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            label: Text(
+                              'Retry',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context).colorScheme.primary,
+                              padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
                         ],
                       ),

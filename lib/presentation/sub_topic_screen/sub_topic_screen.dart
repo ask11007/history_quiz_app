@@ -290,20 +290,50 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.topic_outlined,
+                                Icons.wifi_off,
                                 size: 64,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context).colorScheme.error,
                               ),
                               SizedBox(height: 2.h),
                               Text(
-                                'No Sub-Topics available',
-                                style: Theme.of(context).textTheme.titleLarge,
+                                'No Internet Connection',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                               SizedBox(height: 1.h),
                               Text(
-                                'This subject doesn\'t have sub-topics yet.',
-                                style: Theme.of(context).textTheme.bodyMedium,
+                                'Please check your internet connection\nto load sub-topics.',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                                 textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 3.h),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _isLoadingSubTopics = true;
+                                    _subTopicsData = [];
+                                  });
+                                  _fetchSubTopicsFromDatabase();
+                                },
+                                icon: Icon(Icons.refresh, color: Colors.white),
+                                label: Text(
+                                  'Retry',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
                               ),
                             ],
                           ),

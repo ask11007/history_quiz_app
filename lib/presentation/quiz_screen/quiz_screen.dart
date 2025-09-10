@@ -88,8 +88,18 @@ class _QuizScreenState extends State<QuizScreen> {
         print(
             'Loading quiz data for subject: $_subjectName, tag: $_subjectTag, sub_tag: $subjectSubTag');
 
-        // TEMP FIX: Skip connectivity check and try Supabase directly
-        print('Skipping connectivity check, testing Supabase directly...');
+        // Check connectivity before attempting to load questions
+        final hasInternet = await _connectivityService.hasInternetConnection();
+        if (!hasInternet) {
+          print('No internet connection detected');
+          setState(() {
+            _quizData = [];
+            _isLoading = false;
+            _hasDataLoadError = true;
+            _errorMessage = 'No internet connection available';
+          });
+          return;
+        }
 
         if (_subjectTag.isNotEmpty) {
           List<Question> questions;
@@ -502,35 +512,59 @@ class _QuizScreenState extends State<QuizScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                _hasDataLoadError ? Icons.error_outline : Icons.wifi_off,
+                Icons.wifi_off,
                 size: 64,
                 color: Theme.of(context).colorScheme.error,
               ),
               SizedBox(height: 2.h),
               Text(
-                _hasDataLoadError
-                    ? 'No internet connection'
-                    : 'No questions available',
-                style: Theme.of(context).textTheme.titleMedium,
+                'No Internet Connection',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               SizedBox(height: 1.h),
               Text(
                 _errorMessage.isNotEmpty
                     ? _errorMessage
-                    : 'Please check your internet connection and try again.',
-                style: Theme.of(context).textTheme.bodyMedium,
+                    : 'Please check your internet connection\nand try again to load questions.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 3.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ElevatedButton(
+                  OutlinedButton.icon(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('Go Back'),
+                    icon: CustomIconWidget(
+                      iconName: 'arrow_back',
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    label: Text(
+                      'Go Back',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                        width: 1.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                   SizedBox(width: 3.w),
-                  ElevatedButton(
+                  ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
                         _hasLoadedData = false;
@@ -539,7 +573,25 @@ class _QuizScreenState extends State<QuizScreen> {
                       });
                       _loadQuizData();
                     },
-                    child: Text('Retry'),
+                    icon: CustomIconWidget(
+                      iconName: 'refresh',
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    label: Text(
+                      'Retry',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.5.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -59,7 +59,7 @@ INSERT INTO questions (question, option_A, option_B, option_C, option_D, explana
 ### 1. Question Loading
 - When a user selects a subject, the app fetches questions from Supabase using the `tag` column
 - Questions are automatically categorized by subject based on their tags
-- If no questions are found, the app falls back to mock data
+- If no internet connection is available, the app shows a "No Internet Connection" message
 
 ### 2. Subject Categories
 The app automatically creates subject categories based on the unique values in the `tag` column. Make sure your tags match the subject names in your app:
@@ -67,8 +67,11 @@ The app automatically creates subject categories based on the unique values in t
 - "Math" → "Mathematics" 
 - "Reasoning" → "Reasoning"
 
-### 3. Fallback System
-If Supabase is unavailable or returns no questions, the app gracefully falls back to mock data to ensure users can still take quizzes.
+### 3. Connectivity Handling
+The app now properly handles offline scenarios:
+- Shows "No Internet Connection" message when offline
+- Provides retry functionality when connection is restored
+- No hardcoded fallback data is displayed to users
 
 ## Testing
 
