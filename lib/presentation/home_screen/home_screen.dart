@@ -57,13 +57,18 @@ class _HomeScreenState extends State<HomeScreen> {
               setState(() {
                 _hasConnectionError = false;
               });
-              _loadSubjects();
+              // Add small delay to ensure connectivity is stable
+              Future.delayed(Duration(milliseconds: 500), () {
+                if (mounted && !_isLoadingSubjects) {
+                  _loadSubjects();
+                }
+              });
             } else {
               // Connection lost - show error immediately
               print('❌ Connection lost - showing offline state...');
               setState(() {
                 _subjectsData = [];
-                _isLoadingSubjects = false;
+                _isLoadingSubjects = false; // CRITICAL: Stop any ongoing loading
                 _hasConnectionError = true;
               });
             }
@@ -71,6 +76,12 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         onError: (error) {
           print('❌ Connectivity stream error: $error');
+          if (mounted) {
+            setState(() {
+              _isLoadingSubjects = false; // Reset loading state on stream error
+              _hasConnectionError = true;
+            });
+          }
         },
       );
 
@@ -96,9 +107,12 @@ class _HomeScreenState extends State<HomeScreen> {
         const Duration(seconds: 5),
         onTimeout: () {
           print('⚠️ Supabase request timed out after 5 seconds');
-          return <String>[];
+          throw TimeoutException('Supabase request timed out', const Duration(seconds: 5));
         },
       );
+
+      // Always ensure loading state is reset
+      if (!mounted) return;
 
       if (tags.isNotEmpty) {
         // Create subject data based on available tags
@@ -150,39 +164,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
         setState(() {
           _subjectsData = subjects;
-          _isLoadingSubjects = false; // Fix: Also set the main loading flag
+          _isLoadingSubjects = false; // CRITICAL: Always reset loading state
+          _hasConnectionError = false; // Clear any previous errors
         });
 
         // Cache the loaded data
         _cachedSubjectsData = List.from(subjects);
         _hasLoadedOnce = true;
 
-        print(
-            '✅ Successfully loaded ${subjects.length} subjects from Supabase:');
+        print('✅ Successfully loaded ${subjects.length} subjects from Supabase:');
         for (var subject in subjects) {
           print('  - ${subject["name"]} (${subject["originalTag"]})');
         }
       } else {
-        // No tags found in database - treat as connectivity issue
-        print('❌ No tags found in Supabase database');
+        // No tags found in database - might be empty database
+        print('⚠️ No tags found in Supabase database');
         setState(() {
           _subjectsData = [];
-          _isLoadingSubjects = false;
+          _isLoadingSubjects = false; // CRITICAL: Reset loading state
           _hasConnectionError = true;
         });
       }
     } catch (e) {
       print('❌ Error loading subjects from Supabase: $e');
-      setState(() {
-        _subjectsData = [];
-        _isLoadingSubjects = false;
-        _hasConnectionError = true;
-      });
+      // CRITICAL: Always reset loading state on error
+      if (mounted) {
+        setState(() {
+          _subjectsData = [];
+          _isLoadingSubjects = false; // CRITICAL: Reset loading state
+          _hasConnectionError = true;
+        });
+      }
+      // Re-throw to be handled by caller
+      throw e;
     }
   }
 
   Future<void> _loadSubjects() async {
-    if (_isLoadingSubjects) return; // Prevent multiple simultaneous loads
+    if (_isLoadingSubjects) {
+      print('🔄 Already loading subjects, skipping...');
+      return; // Prevent multiple simultaneous loads
+    }
 
     print('📶 Starting to load subjects...');
     setState(() {
@@ -191,10 +213,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      // Check connectivity with real internet test
+      // Double-check connectivity with real internet test
+      print('🔍 Checking internet connectivity...');
       final hasInternet = await _connectivityService.hasInternetConnection();
+      
       if (!hasInternet) {
-        print('❌ No internet connection detected');
+        print('❌ No internet connection detected - showing offline state');
         setState(() {
           _subjectsData = [];
           _isLoadingSubjects = false;
@@ -206,13 +230,17 @@ class _HomeScreenState extends State<HomeScreen> {
       print('✅ Internet connection confirmed - loading from Supabase...');
       // Try to load from Supabase
       await _loadSubjectsFromSupabase();
+      
     } catch (e) {
       print('❌ Error in _loadSubjects: $e');
-      setState(() {
-        _subjectsData = [];
-        _isLoadingSubjects = false;
-        _hasConnectionError = true;
-      });
+      // Ensure loading state is always reset on error
+      if (mounted) {
+        setState(() {
+          _subjectsData = [];
+          _isLoadingSubjects = false;
+          _hasConnectionError = true;
+        });
+      }
     }
   }
 
@@ -415,20 +443,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(height: 3.h),
                           ElevatedButton.icon(
-                            onPressed: () async {
+                            onPressed: _isLoadingSubjects ? null : () async {
                               print('🔄 Manual retry requested...');
-                              setState(() {
-                                _hasConnectionError = false;
-                                _isLoadingSubjects = true;
-                              });
-
+                              
                               // Force immediate connectivity check
                               await _connectivityService
                                   .forceConnectivityCheck();
 
-                              // Add small delay to show loading state
-                              await Future.delayed(Duration(milliseconds: 200));
-                              _loadSubjects();
+                              // Load subjects with proper error handling
+                              await _loadSubjects();
                             },
                             icon: CustomIconWidget(
                               iconName: 'refresh',
@@ -497,18 +520,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshData() async {
     print('🔄 Manual refresh triggered...');
-
-    // Reset error state
-    setState(() {
-      _hasConnectionError = false;
-      _isLoadingSubjects = true;
-    });
+    
+    // Prevent refresh if already loading
+    if (_isLoadingSubjects) {
+      print('⚠️ Already loading, skipping refresh...');
+      return;
+    }
 
     // Force reload subjects from Supabase with fresh connectivity check
     await _loadSubjects();
 
     // Show refresh feedback only if successful
-    if (mounted && !_hasConnectionError) {
+    if (mounted && !_hasConnectionError && _subjectsData.isNotEmpty) {
       HapticFeedback.lightImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
