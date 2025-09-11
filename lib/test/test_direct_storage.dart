@@ -7,13 +7,14 @@ class TestDirectStorageScreen extends StatefulWidget {
   const TestDirectStorageScreen({Key? key}) : super(key: key);
 
   @override
-  State<TestDirectStorageScreen> createState() => _TestDirectStorageScreenState();
+  State<TestDirectStorageScreen> createState() =>
+      _TestDirectStorageScreenState();
 }
 
 class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
   String _testOutput = '';
   bool _isRunning = false;
-  
+
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
 
@@ -35,13 +36,14 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
     });
 
     try {
-      _addOutput('📝 Creating user: ${_nameController.text} (${_emailController.text})');
-      
+      _addOutput(
+          '📝 Creating user: ${_nameController.text} (${_emailController.text})');
+
       final userRecord = await SupabaseService.createDirectUser(
         name: _nameController.text,
         email: _emailController.text,
       );
-      
+
       if (userRecord != null) {
         _addOutput('✅ User created successfully!');
         _addOutput('   - ID: ${userRecord['id']}');
@@ -51,7 +53,6 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
       } else {
         _addOutput('❌ User creation failed');
       }
-      
     } catch (e) {
       _addOutput('❌ Error: $e');
     } finally {
@@ -73,9 +74,9 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
 
     try {
       _addOutput('\n🔍 Looking for user: ${_emailController.text}');
-      
+
       final user = await SupabaseService.getUserByEmail(_emailController.text);
-      
+
       if (user != null) {
         _addOutput('✅ User found!');
         _addOutput('   - ID: ${user['id']}');
@@ -85,7 +86,6 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
       } else {
         _addOutput('❌ User not found');
       }
-      
     } catch (e) {
       _addOutput('❌ Error: $e');
     } finally {
@@ -102,14 +102,14 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
 
     try {
       _addOutput('\n📋 Fetching all users...');
-      
+
       final users = await SupabaseService.getAllUsers();
-      
+
       _addOutput('✅ Found ${users.length} users:');
       for (var user in users) {
-        _addOutput('   - ${user['name']} (${user['email']}) - ${user['created_at']}');
+        _addOutput(
+            '   - ${user['name']} (${user['email']}) - ${user['created_at']}');
       }
-      
     } catch (e) {
       _addOutput('❌ Error: $e');
     } finally {
@@ -122,24 +122,26 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
   Future<void> _testGoogleAuth() async {
     setState(() {
       _isRunning = true;
-      _testOutput = '🔑 Testing Google Authentication with Direct Storage...\n\n';
+      _testOutput =
+          '🔑 Testing Google Authentication with Direct Storage...\n\n';
     });
 
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      
+
       _addOutput('📱 Starting Google Sign-In...');
       final success = await userProvider.signInWithGoogle();
-      
+
       if (success) {
         _addOutput('✅ Google authentication successful!');
         _addOutput('   - User authenticated: ${userProvider.isAuthenticated}');
         _addOutput('   - User name: ${userProvider.userName}');
         _addOutput('   - User email: ${userProvider.userEmail}');
         _addOutput('   - User ID: ${userProvider.userData['id']}');
-        
+
         // Check if user was stored in database
-        final dbUser = await SupabaseService.getUserByEmail(userProvider.userEmail);
+        final dbUser =
+            await SupabaseService.getUserByEmail(userProvider.userEmail);
         if (dbUser != null) {
           _addOutput('✅ User record found in database!');
           _addOutput('   - Database ID: ${dbUser['id']}');
@@ -149,7 +151,6 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
       } else {
         _addOutput('❌ Google authentication failed');
       }
-      
     } catch (e) {
       _addOutput('❌ Error: $e');
     } finally {
@@ -191,7 +192,7 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            
+
             // Input fields
             TextField(
               controller: _nameController,
@@ -201,7 +202,7 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            
+
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -211,7 +212,7 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 20),
-            
+
             // Test buttons
             Wrap(
               spacing: 10,
@@ -236,9 +237,9 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 10),
-            
+
             ElevatedButton(
               onPressed: () {
                 setState(() {
@@ -248,15 +249,15 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
               child: const Text('Clear Output'),
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             const Text(
               'Test Output:',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            
+
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(12),
@@ -266,7 +267,9 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
                 ),
                 child: SingleChildScrollView(
                   child: Text(
-                    _testOutput.isEmpty ? 'No output yet. Run tests to see results.' : _testOutput,
+                    _testOutput.isEmpty
+                        ? 'No output yet. Run tests to see results.'
+                        : _testOutput,
                     style: const TextStyle(
                       color: Colors.white,
                       fontFamily: 'monospace',
@@ -276,7 +279,7 @@ class _TestDirectStorageScreenState extends State<TestDirectStorageScreen> {
                 ),
               ),
             ),
-            
+
             if (_isRunning)
               const Padding(
                 padding: EdgeInsets.all(8.0),

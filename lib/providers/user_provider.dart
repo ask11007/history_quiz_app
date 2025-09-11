@@ -94,8 +94,6 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-
-
   // Sign in with Google - Simple Direct Storage Approach
   Future<bool> signInWithGoogle() async {
     try {
@@ -127,7 +125,7 @@ class UserProvider extends ChangeNotifier {
 
       // Check if user already exists in our database
       var existingUser = await SupabaseService.getUserByEmail(googleUser.email);
-      
+
       if (existingUser != null) {
         // User exists, load their data
         print('🔄 Existing user found, loading profile...');
@@ -140,19 +138,18 @@ class UserProvider extends ChangeNotifier {
 
       _isAuthenticated = true;
       _currentUser = null; // No Supabase auth user needed
-      
+
       // Save to local storage
       await _saveUserData();
 
       print('✅ Google authentication and user data storage completed!');
       print('User ID: ${_userData['id']}');
       print('User Name: ${_userData['name']}');
-      
+
       return true;
-      
     } catch (e) {
       print('❌ Google sign-in error: $e');
-      
+
       // Enhanced error handling for common Android Google Sign-In issues
       if (e.toString().contains('ApiException: 10')) {
         throw Exception('Google Sign-In configuration error.\n'
@@ -247,13 +244,13 @@ class UserProvider extends ChangeNotifier {
   Future<void> _createDirectUserProfile(GoogleSignInAccount googleUser) async {
     try {
       print('=== CREATING DIRECT USER PROFILE ===');
-      
+
       final userRecord = await SupabaseService.createDirectUser(
         name: googleUser.displayName ?? 'Google User',
         email: googleUser.email,
         avatarUrl: googleUser.photoUrl,
       );
-      
+
       if (userRecord != null) {
         // Successfully created in database
         _userData = {
@@ -272,10 +269,9 @@ class UserProvider extends ChangeNotifier {
             "language": "English"
           }
         };
-        
+
         print('✅ User profile created and stored in database!');
         print('Database ID: ${userRecord['id']}');
-        
       } else {
         // Database creation failed, create local-only profile
         print('⚠️ Database storage failed, creating local profile only');
@@ -296,7 +292,6 @@ class UserProvider extends ChangeNotifier {
           }
         };
       }
-      
     } catch (e) {
       print('❌ Error creating direct user profile: $e');
       // Fallback to local profile
@@ -318,21 +313,23 @@ class UserProvider extends ChangeNotifier {
       };
     }
   }
-  
+
   // Load existing user profile from database
   Future<void> _loadDirectUserProfile(Map<String, dynamic> userRecord) async {
     try {
       print('=== LOADING EXISTING USER PROFILE ===');
       print('User: ${userRecord['name']} (${userRecord['email']})');
-      
+
       _userData = {
         "id": userRecord['id'],
         "name": userRecord['name'],
         "email": userRecord['email'],
-        "avatar": 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face', // Default avatar for now
+        "avatar":
+            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face', // Default avatar for now
         "totalQuizTime": '0h 0m',
         "achievementBadges": 0,
-        "joinedDate": userRecord['created_at'] ?? DateTime.now().toIso8601String(),
+        "joinedDate":
+            userRecord['created_at'] ?? DateTime.now().toIso8601String(),
         "lastActive": DateTime.now().toIso8601String(),
         "preferences": {
           "darkMode": false,
@@ -340,19 +337,20 @@ class UserProvider extends ChangeNotifier {
           "language": "English"
         }
       };
-      
+
       print('✅ Existing user profile loaded successfully!');
       print('User ID: ${userRecord['id']}');
       print('Member since: ${userRecord['created_at']}');
-      
     } catch (e) {
       print('❌ Error loading user profile: $e');
       // Create fallback profile
       _userData = {
-        "id": userRecord['id'] ?? 'fallback_${DateTime.now().millisecondsSinceEpoch}',
+        "id": userRecord['id'] ??
+            'fallback_${DateTime.now().millisecondsSinceEpoch}',
         "name": userRecord['name'] ?? 'User',
         "email": userRecord['email'] ?? 'user@example.com',
-        "avatar": 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        "avatar":
+            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
         "totalQuizTime": '0h 0m',
         "achievementBadges": 0,
         "joinedDate": DateTime.now().toIso8601String(),
@@ -657,7 +655,8 @@ class UserProvider extends ChangeNotifier {
         _userData = {..._userData, ...parsedData};
 
         // Restore authentication state based on type
-        if (authType == 'direct_storage' || authType == 'direct_storage_offline') {
+        if (authType == 'direct_storage' ||
+            authType == 'direct_storage_offline') {
           _isAuthenticated = true;
           print('✅ Restored Direct Storage authentication state');
           print('User data loaded from local storage: $parsedData');
@@ -692,7 +691,7 @@ class UserProvider extends ChangeNotifier {
       // Save authentication state with proper type detection
       await prefs.setBool('is_authenticated', _isAuthenticated);
       await prefs.setString('user_id', _userData['id'] ?? '');
-      
+
       // Determine authentication type based on user ID and current state
       String authType;
       if (_currentUser != null) {
@@ -701,13 +700,14 @@ class UserProvider extends ChangeNotifier {
         authType = 'direct_storage_offline';
       } else if (_userData['id']?.toString().startsWith('guest_') == true) {
         authType = 'guest';
-      } else if (_userData['id']?.toString().contains('-') == true && _userData['id']?.toString().length == 36) {
+      } else if (_userData['id']?.toString().contains('-') == true &&
+          _userData['id']?.toString().length == 36) {
         // UUID format indicates database storage
         authType = 'direct_storage';
       } else {
         authType = 'google_direct';
       }
-      
+
       await prefs.setString('auth_type', authType);
       await prefs.setString('last_auth_time', DateTime.now().toIso8601String());
 
@@ -818,7 +818,6 @@ class UserProvider extends ChangeNotifier {
       print('   - Authenticated: $_isAuthenticated');
       print('   - User ID: ${_currentUser?.id}');
       print('   - User email: ${_currentUser?.email}');
-
 
       // Test 2: Check auth listeners
       print('\n2. Testing auth state listeners...');
@@ -985,8 +984,6 @@ class UserProvider extends ChangeNotifier {
     print('\n✅ === ALL INTERNAL TESTS COMPLETED ===');
     print('Check the console output above for detailed results.');
   }
-
-
 
   /// Test Google OAuth specifically
   Future<void> testGoogleAuth() async {
