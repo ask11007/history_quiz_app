@@ -96,23 +96,18 @@ class UserProvider extends ChangeNotifier {
 
 
 
-  // Sign in with Google (Android native implementation)
+  // Sign in with Google - Simple Direct Storage Approach
   Future<bool> signInWithGoogle() async {
     try {
       _isLoading = true;
       notifyListeners();
 
-      print('Starting Google authentication (Android native)');
+      print('📱 === STARTING GOOGLE SIGN-IN (DIRECT STORAGE) ===');
       print('Package name: com.quiz_master.app');
-      print(
-          'Expected SHA-1: 24:46:6F:62:7C:53:5F:14:FC:8D:E2:E3:DC:97:BB:7D:F1:CC:A9:9E');
 
       // Initialize Google Sign-In for Android
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        scopes: [
-          'email',
-          'profile',
-        ],
+        scopes: ['email', 'profile'],
       );
 
       // Sign out any existing session to ensure clean state
@@ -122,92 +117,42 @@ class UserProvider extends ChangeNotifier {
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
-        print('User cancelled Google sign-in');
+        print('❌ User cancelled Google sign-in');
         return false;
       }
 
-      // Get Google Auth credentials
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      print('✅ Google sign-in successful!');
+      print('User: ${googleUser.displayName} (${googleUser.email})');
+      print('Avatar: ${googleUser.photoUrl}');
 
-      print('Google user info: ${googleUser.email}');
-      print('ID Token available: ${googleAuth.idToken != null}');
-      print('Access Token available: ${googleAuth.accessToken != null}');
-
-      if (googleAuth.idToken != null) {
-        print('Authenticating with Supabase using Google credentials...');
-
-        // Authenticate with Supabase using Google ID token
-        final response = await SupabaseService.client.auth.signInWithIdToken(
-          provider: OAuthProvider.google,
-          idToken: googleAuth.idToken!,
-          accessToken: googleAuth.accessToken,
-        );
-
-        if (response.user != null) {
-          _currentUser = response.user;
-          _isAuthenticated = true;
-
-          print('✅ Google + Supabase authentication successful');
-          print('User ID: ${_currentUser!.id}');
-          print('User email: ${_currentUser!.email}');
-
-          // Load or create user profile
-          try {
-            await _loadUserProfile();
-          } catch (profileError) {
-            print(
-                'Profile not found, creating new profile from Google data...');
-            await _createProfileFromGoogleData(googleUser);
-          }
-
-          // Ensure UI updates after successful authentication
-          _isLoading = false;
-          notifyListeners();
-          print('✅ Google authentication completed - UI should update now');
-          return true;
-        }
+      // Check if user already exists in our database
+      var existingUser = await SupabaseService.getUserByEmail(googleUser.email);
+      
+      if (existingUser != null) {
+        // User exists, load their data
+        print('🔄 Existing user found, loading profile...');
+        await _loadDirectUserProfile(existingUser);
       } else {
-        print('No ID token received from Google');
-
-        // Fallback: Create user data directly from Google account (for testing)
-        print('Using direct Google authentication fallback');
-
-        _userData = {
-          "id": googleUser.id,
-          "name": googleUser.displayName ?? 'Google User',
-          "email": googleUser.email,
-          "avatar": googleUser.photoUrl ??
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-          "totalQuizTime": '0h 0m',
-          "achievementBadges": 0,
-          "joinedDate": DateTime.now().toIso8601String(),
-          "lastActive": DateTime.now().toIso8601String(),
-          "preferences": {
-            "darkMode": false,
-            "notifications": true,
-            "language": "English"
-          }
-        };
-
-        _isAuthenticated = true;
-        await _saveUserData();
-
-        // Ensure UI updates after successful authentication
-        _isLoading = false;
-        notifyListeners();
-        print(
-            '✅ Google authentication successful (direct mode) - UI should update now');
-        return true;
+        // New user, create record in database
+        print('🆕 New user, creating profile...');
+        await _createDirectUserProfile(googleUser);
       }
 
-      return false;
-    } on AuthException catch (e) {
-      print('Supabase auth error: ${e.message}');
-      throw Exception('Supabase authentication failed: ${e.message}');
-    } catch (e) {
-      print('Google sign in error: $e');
+      _isAuthenticated = true;
+      _currentUser = null; // No Supabase auth user needed
+      
+      // Save to local storage
+      await _saveUserData();
 
+      print('✅ Google authentication and user data storage completed!');
+      print('User ID: ${_userData['id']}');
+      print('User Name: ${_userData['name']}');
+      
+      return true;
+      
+    } catch (e) {
+      print('❌ Google sign-in error: $e');
+      
       // Enhanced error handling for common Android Google Sign-In issues
       if (e.toString().contains('ApiException: 10')) {
         throw Exception('Google Sign-In configuration error.\n'
@@ -295,6 +240,129 @@ class UserProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // Create user profile directly in database from Google data
+  Future<void> _createDirectUserProfile(GoogleSignInAccount googleUser) async {
+    try {
+      print('=== CREATING DIRECT USER PROFILE ===');
+      
+      final userRecord = await SupabaseService.createDirectUser(
+        name: googleUser.displayName ?? 'Google User',
+        email: googleUser.email,
+        avatarUrl: googleUser.photoUrl,
+      );
+      
+      if (userRecord != null) {
+        // Successfully created in database
+        _userData = {
+          "id": userRecord['id'],
+          "name": userRecord['name'],
+          "email": userRecord['email'],
+          "avatar": googleUser.photoUrl ??
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "totalQuizTime": '0h 0m',
+          "achievementBadges": 0,
+          "joinedDate": userRecord['created_at'],
+          "lastActive": DateTime.now().toIso8601String(),
+          "preferences": {
+            "darkMode": false,
+            "notifications": true,
+            "language": "English"
+          }
+        };
+        
+        print('✅ User profile created and stored in database!');
+        print('Database ID: ${userRecord['id']}');
+        
+      } else {
+        // Database creation failed, create local-only profile
+        print('⚠️ Database storage failed, creating local profile only');
+        _userData = {
+          "id": 'local_${DateTime.now().millisecondsSinceEpoch}',
+          "name": googleUser.displayName ?? 'Google User',
+          "email": googleUser.email,
+          "avatar": googleUser.photoUrl ??
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "totalQuizTime": '0h 0m',
+          "achievementBadges": 0,
+          "joinedDate": DateTime.now().toIso8601String(),
+          "lastActive": DateTime.now().toIso8601String(),
+          "preferences": {
+            "darkMode": false,
+            "notifications": true,
+            "language": "English"
+          }
+        };
+      }
+      
+    } catch (e) {
+      print('❌ Error creating direct user profile: $e');
+      // Fallback to local profile
+      _userData = {
+        "id": 'local_${DateTime.now().millisecondsSinceEpoch}',
+        "name": googleUser.displayName ?? 'Google User',
+        "email": googleUser.email,
+        "avatar": googleUser.photoUrl ??
+            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        "totalQuizTime": '0h 0m',
+        "achievementBadges": 0,
+        "joinedDate": DateTime.now().toIso8601String(),
+        "lastActive": DateTime.now().toIso8601String(),
+        "preferences": {
+          "darkMode": false,
+          "notifications": true,
+          "language": "English"
+        }
+      };
+    }
+  }
+  
+  // Load existing user profile from database
+  Future<void> _loadDirectUserProfile(Map<String, dynamic> userRecord) async {
+    try {
+      print('=== LOADING EXISTING USER PROFILE ===');
+      print('User: ${userRecord['name']} (${userRecord['email']})');
+      
+      _userData = {
+        "id": userRecord['id'],
+        "name": userRecord['name'],
+        "email": userRecord['email'],
+        "avatar": 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face', // Default avatar for now
+        "totalQuizTime": '0h 0m',
+        "achievementBadges": 0,
+        "joinedDate": userRecord['created_at'] ?? DateTime.now().toIso8601String(),
+        "lastActive": DateTime.now().toIso8601String(),
+        "preferences": {
+          "darkMode": false,
+          "notifications": true,
+          "language": "English"
+        }
+      };
+      
+      print('✅ Existing user profile loaded successfully!');
+      print('User ID: ${userRecord['id']}');
+      print('Member since: ${userRecord['created_at']}');
+      
+    } catch (e) {
+      print('❌ Error loading user profile: $e');
+      // Create fallback profile
+      _userData = {
+        "id": userRecord['id'] ?? 'fallback_${DateTime.now().millisecondsSinceEpoch}',
+        "name": userRecord['name'] ?? 'User',
+        "email": userRecord['email'] ?? 'user@example.com',
+        "avatar": 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        "totalQuizTime": '0h 0m',
+        "achievementBadges": 0,
+        "joinedDate": DateTime.now().toIso8601String(),
+        "lastActive": DateTime.now().toIso8601String(),
+        "preferences": {
+          "darkMode": false,
+          "notifications": true,
+          "language": "English"
+        }
+      };
     }
   }
 
@@ -589,7 +657,11 @@ class UserProvider extends ChangeNotifier {
         _userData = {..._userData, ...parsedData};
 
         // Restore authentication state based on type
-        if (authType == 'google_direct') {
+        if (authType == 'direct_storage' || authType == 'direct_storage_offline') {
+          _isAuthenticated = true;
+          print('✅ Restored Direct Storage authentication state');
+          print('User data loaded from local storage: $parsedData');
+        } else if (authType == 'google_direct') {
           _isAuthenticated = true;
           print('✅ Restored Google Direct authentication state');
           print('User data loaded from local storage: $parsedData');
@@ -617,13 +689,32 @@ class UserProvider extends ChangeNotifier {
       await prefs.setString('user_email', _userData['email']);
       await prefs.setString('user_avatar', _userData['avatar']);
 
-      // Save authentication state
+      // Save authentication state with proper type detection
       await prefs.setBool('is_authenticated', _isAuthenticated);
       await prefs.setString('user_id', _userData['id'] ?? '');
-      await prefs.setString(
-          'auth_type', _currentUser != null ? 'supabase' : 'google_direct');
+      
+      // Determine authentication type based on user ID and current state
+      String authType;
+      if (_currentUser != null) {
+        authType = 'supabase_oauth';
+      } else if (_userData['id']?.toString().startsWith('local_') == true) {
+        authType = 'direct_storage_offline';
+      } else if (_userData['id']?.toString().startsWith('guest_') == true) {
+        authType = 'guest';
+      } else if (_userData['id']?.toString().contains('-') == true && _userData['id']?.toString().length == 36) {
+        // UUID format indicates database storage
+        authType = 'direct_storage';
+      } else {
+        authType = 'google_direct';
+      }
+      
+      await prefs.setString('auth_type', authType);
+      await prefs.setString('last_auth_time', DateTime.now().toIso8601String());
 
-      print('User data and auth state saved to local storage');
+      print('✅ User data and auth state saved to local storage');
+      print('   - Auth Type: $authType');
+      print('   - User ID: ${_userData['id']}');
+      print('   - User Name: ${_userData['name']}');
     } catch (e) {
       print('Error saving user data: $e');
     }

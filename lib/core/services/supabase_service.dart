@@ -1,12 +1,14 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/question_model.dart';
 import '../config/supabase_config.dart';
+import 'package:uuid/uuid.dart';
 
 class SupabaseService {
   static const String _supabaseUrl = SupabaseConfig.url;
   static const String _supabaseAnonKey = SupabaseConfig.anonKey;
 
   static late SupabaseClient _client;
+  static const _uuid = Uuid();
 
   static Future<void> initialize() async {
     try {
@@ -33,6 +35,174 @@ class SupabaseService {
   }
 
   static SupabaseClient get client => _client;
+
+  // === USER MANAGEMENT METHODS ===
+  
+  /// Create a new user record directly in your custom table
+  /// This bypasses Supabase Auth and stores user data directly
+  static Future<Map<String, dynamic>?> createDirectUser({
+    required String name,
+    required String email,
+    String? avatarUrl,
+  }) async {
+    try {
+      print('=== CREATING DIRECT USER RECORD ===');
+      print('Name: $name');
+      print('Email: $email');
+      print('Avatar URL: ${avatarUrl ?? "None"}');
+      // Generate a unique UUID for the user
+      final userId = _uuid.v4();
+      final now = DateTime.now().toIso8601String();
+      
+      final userData = {
+        'id': userId,
+        'name': name.trim(),
+        'email': email.toLowerCase().trim(),
+        'created_at': now,
+      };
+      
+      print('Attempting to insert user data: $userData');
+      
+      // Insert into your custom users table
+      final response = await _client
+          .from('user_profiles')  // Assuming this is your table name
+          .insert(userData)
+          .select()
+          .single();
+      
+      print('✅ User created successfully in database');
+      print('User ID: ${response['id']}');
+      print('Created at: ${response['created_at']}');
+      
+      return response;
+      
+    } catch (e) {
+      print('❌ Failed to create user record: $e');
+      print('Error details: ${e.toString()}');
+      
+      // Check if it's a duplicate email error
+      if (e.toString().contains('duplicate') || e.toString().contains('unique')) {
+        print('🔄 User with this email might already exist');
+        return await getUserByEmail(email);
+      }
+      
+      return null;
+    }
+  }
+  
+  /// Get user by email from your custom table
+  static Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    try {
+      print('🔍 Looking for user with email: $email');
+      
+      final response = await _client
+          .from('user_profiles')
+          .select('*')
+          .eq('email', email.toLowerCase().trim())
+          .maybeSingle();
+      
+      if (response != null) {
+        print('✅ Found existing user: ${response['name']} (ID: ${response['id']})');
+        return response;
+      } else {
+        print('ℹ️ No user found with email: $email');
+        return null;
+      }
+      
+    } catch (e) {
+      print('❌ Error fetching user by email: $e');
+      return null;
+    }
+  }
+  
+  /// Get user by ID from your custom table
+  static Future<Map<String, dynamic>?> getUserById(String userId) async {
+    try {
+      print('🔍 Looking for user with ID: $userId');
+      
+      final response = await _client
+          .from('user_profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+      
+      if (response != null) {
+        print('✅ Found user: ${response['name']} (${response['email']})');
+        return response;
+      } else {
+        print('ℹ️ No user found with ID: $userId');
+        return null;
+      }
+      
+    } catch (e) {
+      print('❌ Error fetching user by ID: $e');
+      return null;
+    }
+  }
+  
+  /// Update user information
+  static Future<Map<String, dynamic>?> updateUser(String userId, {
+    String? name,
+    String? email,
+    String? avatarUrl,
+  }) async {
+    try {
+      print('🔄 Updating user: $userId');
+      
+      final updateData = <String, dynamic>{};
+      if (name != null) updateData['name'] = name.trim();
+      if (email != null) updateData['email'] = email.toLowerCase().trim();
+      
+      if (updateData.isEmpty) {
+        print('ℹ️ No data to update');
+        return await getUserById(userId);
+      }
+      
+      print('Update data: $updateData');
+      
+      final response = await _client
+          .from('user_profiles')
+          .update(updateData)
+          .eq('id', userId)
+          .select()
+          .single();
+      
+      print('✅ User updated successfully');
+      return response;
+      
+    } catch (e) {
+      print('❌ Error updating user: $e');
+      return null;
+    }
+  }
+  
+  /// Check if email already exists
+  static Future<bool> emailExists(String email) async {
+    try {
+      final user = await getUserByEmail(email);
+      return user != null;
+    } catch (e) {
+      print('❌ Error checking email existence: $e');
+      return false;
+    }
+  }
+  
+  /// Get all users (for admin purposes)
+  static Future<List<Map<String, dynamic>>> getAllUsers() async {
+    try {
+      final response = await _client
+          .from('user_profiles')
+          .select('*')
+          .order('created_at', ascending: false);
+      
+      print('📋 Retrieved ${response.length} users from database');
+      return List<Map<String, dynamic>>.from(response);
+      
+    } catch (e) {
+      print('❌ Error fetching all users: $e');
+      return [];
+    }
+  }
 
   // Comprehensive database diagnostics - Test BOTH tables
   static Future<void> runDatabaseDiagnostics() async {
