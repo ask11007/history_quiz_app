@@ -10,7 +10,6 @@ import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
-import 'package:external_path/external_path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import '../core/services/supabase_service.dart';
@@ -1183,23 +1182,38 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  // Get external app folder path (like WhatsApp)
+  // Get external app folder path (alternative implementation)
   Future<String> _getExternalAppFolderPath() async {
     try {
-      // Get external storage directory (like /storage/emulated/0/)
-      final String externalPath =
-          await ExternalPath.getExternalStoragePublicDirectory(
-              ExternalPath.DIRECTORY_PICTURES);
+      Directory? externalDir;
 
-      // Create our app folder path: /storage/emulated/0/Pictures/Quiz Master/
-      final String appFolderPath =
-          path.join(path.dirname(externalPath), _appFolderName);
+      if (Platform.isAndroid) {
+        // Try to get external storage directories
+        externalDir = await getExternalStorageDirectory();
 
-      print('App folder path: $appFolderPath');
-      return appFolderPath;
+        if (externalDir != null) {
+          // Navigate to the public storage area
+          // From: /storage/emulated/0/Android/data/com.quiz_master.app/files
+          // To: /storage/emulated/0/Quiz Master
+          final List<String> pathParts = externalDir.path.split('/');
+          final int androidIndex = pathParts.indexOf('Android');
+
+          if (androidIndex > 0) {
+            final String publicPath =
+                pathParts.sublist(0, androidIndex).join('/');
+            final String appFolderPath = path.join(publicPath, _appFolderName);
+            print('App folder path: $appFolderPath');
+            return appFolderPath;
+          }
+        }
+      }
+
+      // Fallback to app-specific external directory
+      externalDir ??= await getApplicationDocumentsDirectory();
+      return path.join(externalDir.path, _appFolderName);
     } catch (e) {
       print('Error getting external path: $e');
-      // Fallback to internal storage
+      // Final fallback to internal storage
       final Directory appDir = await getApplicationDocumentsDirectory();
       return path.join(appDir.path, _appFolderName);
     }
