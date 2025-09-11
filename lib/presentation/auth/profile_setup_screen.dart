@@ -20,25 +20,16 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen>
   final _nameController = TextEditingController();
 
   bool _isLoading = false;
-  String? _selectedAvatar;
+  // Use default cat avatar - no selection needed
+  static const String _defaultCatAvatar =
+      'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop&crop=face';
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
-  // Pre-defined avatar options
-  final List<String> _avatarOptions = [
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face',
-  ];
-
   @override
   void initState() {
     super.initState();
-    _selectedAvatar = _avatarOptions[0]; // Default avatar
     _initializeAnimations();
   }
 
@@ -66,11 +57,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen>
 
     try {
       print('Setting up profile with name: ${_nameController.text.trim()}');
-      print('Selected avatar: $_selectedAvatar');
+      print('Using default cat avatar: $_defaultCatAvatar');
 
       final success = await userProvider.createUserProfile(
         _nameController.text.trim(),
-        _selectedAvatar,
+        _defaultCatAvatar,
       );
 
       if (success && mounted) {
@@ -105,66 +96,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen>
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  void _showAvatarSelection() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Choose Your Avatar'),
-        content: Container(
-          width: 80.w,
-          height: 40.h,
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 4.w,
-              mainAxisSpacing: 2.h,
-              childAspectRatio: 1,
-            ),
-            itemCount: _avatarOptions.length,
-            itemBuilder: (context, index) {
-              final avatar = _avatarOptions[index];
-              final isSelected = avatar == _selectedAvatar;
-
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedAvatar = avatar;
-                  });
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.transparent,
-                      width: 3,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: CustomImageWidget(
-                      imageUrl: avatar,
-                      width: 20.w,
-                      height: 20.w,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -280,69 +211,44 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen>
 
                         SizedBox(height: 4.h),
 
-                        // Avatar Selection
-                        GestureDetector(
-                          onTap: _showAvatarSelection,
-                          child: Container(
-                            width: 25.w,
-                            height: 25.w,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.primary,
-                                width: 3,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Theme.of(context).colorScheme.shadow,
-                                  blurRadius: 12,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
+                        // Avatar Display (Non-interactive during setup)
+                        Container(
+                          width: 25.w,
+                          height: 25.w,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 3,
                             ),
-                            child: ClipOval(
-                              child: Stack(
-                                children: [
-                                  CustomImageWidget(
-                                    imageUrl: _selectedAvatar!,
-                                    width: 25.w,
-                                    height: 25.w,
-                                    fit: BoxFit.cover,
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      width: 6.w,
-                                      height: 6.w,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: CustomIconWidget(
-                                        iconName: 'edit',
-                                        color: Colors.white,
-                                        size: 3.w,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context).colorScheme.shadow,
+                                blurRadius: 12,
+                                offset: Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: CustomImageWidget(
+                              imageUrl: _defaultCatAvatar,
+                              width: 25.w,
+                              height: 25.w,
+                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
 
                         SizedBox(height: 1.h),
                         Text(
-                          'Tap to change avatar',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                          'Default cat avatar\n(You can change this later)',
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                          textAlign: TextAlign.center,
                         ),
 
                         SizedBox(height: 4.h),

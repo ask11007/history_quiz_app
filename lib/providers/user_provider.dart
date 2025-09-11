@@ -1,18 +1,24 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'dart:io';
 import '../core/services/supabase_service.dart';
 import '../core/services/connectivity_service.dart';
 import 'dart:math';
 
 class UserProvider extends ChangeNotifier {
+  // Default cat avatar URL
+  static const String _defaultCatAvatar =
+      'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop&crop=face';
+
   Map<String, dynamic> _userData = {
     "id": null,
     "name": "Guest User",
     "email": "guest@example.com",
-    "avatar":
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+    "avatar": _defaultCatAvatar,
     "totalQuizTime": "0h 0m",
     "achievementBadges": 0,
     "joinedDate": DateTime.now().toIso8601String(),
@@ -209,8 +215,7 @@ class UserProvider extends ChangeNotifier {
         "id": "guest_${DateTime.now().millisecondsSinceEpoch}",
         "name": "Guest User",
         "email": "guest@example.com",
-        "avatar":
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+        "avatar": _defaultCatAvatar,
         "totalQuizTime": "0h 0m",
         "achievementBadges": 0,
         "joinedDate": DateTime.now().toIso8601String(),
@@ -257,8 +262,7 @@ class UserProvider extends ChangeNotifier {
           "id": userRecord['id'],
           "name": userRecord['name'],
           "email": userRecord['email'],
-          "avatar": googleUser.photoUrl ??
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "avatar": googleUser.photoUrl ?? _defaultCatAvatar,
           "totalQuizTime": '0h 0m',
           "achievementBadges": 0,
           "joinedDate": userRecord['created_at'],
@@ -279,8 +283,7 @@ class UserProvider extends ChangeNotifier {
           "id": 'local_${DateTime.now().millisecondsSinceEpoch}',
           "name": googleUser.displayName ?? 'Google User',
           "email": googleUser.email,
-          "avatar": googleUser.photoUrl ??
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "avatar": googleUser.photoUrl ?? _defaultCatAvatar,
           "totalQuizTime": '0h 0m',
           "achievementBadges": 0,
           "joinedDate": DateTime.now().toIso8601String(),
@@ -299,8 +302,7 @@ class UserProvider extends ChangeNotifier {
         "id": 'local_${DateTime.now().millisecondsSinceEpoch}',
         "name": googleUser.displayName ?? 'Google User',
         "email": googleUser.email,
-        "avatar": googleUser.photoUrl ??
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        "avatar": googleUser.photoUrl ?? _defaultCatAvatar,
         "totalQuizTime": '0h 0m',
         "achievementBadges": 0,
         "joinedDate": DateTime.now().toIso8601String(),
@@ -324,8 +326,7 @@ class UserProvider extends ChangeNotifier {
         "id": userRecord['id'],
         "name": userRecord['name'],
         "email": userRecord['email'],
-        "avatar":
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face', // Default avatar for now
+        "avatar": _defaultCatAvatar, // Default avatar for now
         "totalQuizTime": '0h 0m',
         "achievementBadges": 0,
         "joinedDate":
@@ -349,8 +350,7 @@ class UserProvider extends ChangeNotifier {
             'fallback_${DateTime.now().millisecondsSinceEpoch}',
         "name": userRecord['name'] ?? 'User',
         "email": userRecord['email'] ?? 'user@example.com',
-        "avatar":
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        "avatar": _defaultCatAvatar,
         "totalQuizTime": '0h 0m',
         "achievementBadges": 0,
         "joinedDate": DateTime.now().toIso8601String(),
@@ -425,8 +425,7 @@ class UserProvider extends ChangeNotifier {
           "id": _currentUser!.id,
           "name": name.trim(),
           "email": _currentUser!.email ?? '',
-          "avatar":
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "avatar": _defaultCatAvatar,
           "totalQuizTime": '0h 0m',
           "achievementBadges": 0,
           "joinedDate": DateTime.now().toIso8601String(),
@@ -458,8 +457,7 @@ class UserProvider extends ChangeNotifier {
           "id": _currentUser!.id,
           "name": name.trim(),
           "email": _currentUser!.email ?? '',
-          "avatar": avatarUrl ??
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "avatar": avatarUrl ?? _defaultCatAvatar,
           "totalQuizTime": '0h 0m',
           "achievementBadges": 0,
           "joinedDate": DateTime.now().toIso8601String(),
@@ -497,8 +495,7 @@ class UserProvider extends ChangeNotifier {
           "id": _currentUser!.id,
           "name": response['name'] ?? 'User',
           "email": _currentUser!.email ?? '',
-          "avatar": response['avatar_url'] ??
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "avatar": response['avatar_url'] ?? _defaultCatAvatar,
           "totalQuizTime": _formatInterval(response['total_quiz_time']),
           "achievementBadges": response['achievement_badges'] ?? 0,
           "joinedDate":
@@ -527,8 +524,7 @@ class UserProvider extends ChangeNotifier {
           "id": _currentUser!.id,
           "name": authName,
           "email": _currentUser!.email ?? '',
-          "avatar":
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "avatar": _defaultCatAvatar,
           "totalQuizTime": '0h 0m',
           "achievementBadges": 0,
           "joinedDate": DateTime.now().toIso8601String(),
@@ -594,8 +590,7 @@ class UserProvider extends ChangeNotifier {
           "id": _currentUser!.id,
           "name": googleUser.displayName ?? 'Google User',
           "email": _currentUser!.email ?? googleUser.email,
-          "avatar": googleUser.photoUrl ??
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+          "avatar": googleUser.photoUrl ?? _defaultCatAvatar,
           "totalQuizTime": '0h 0m',
           "achievementBadges": 0,
           "joinedDate": DateTime.now().toIso8601String(),
@@ -617,8 +612,7 @@ class UserProvider extends ChangeNotifier {
         "id": _currentUser?.id ?? googleUser.id,
         "name": googleUser.displayName ?? 'Google User',
         "email": _currentUser?.email ?? googleUser.email,
-        "avatar": googleUser.photoUrl ??
-            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        "avatar": googleUser.photoUrl ?? _defaultCatAvatar,
         "totalQuizTime": '0h 0m',
         "achievementBadges": 0,
         "joinedDate": DateTime.now().toIso8601String(),
@@ -1116,6 +1110,27 @@ class UserProvider extends ChangeNotifier {
     print('\n=== QUESTION LOADING TEST COMPLETE ===');
   }
 
+  // Image picker and upload functionality
+  // final ImagePicker _imagePicker = ImagePicker();
+
+  // Pick and upload profile picture
+  Future<bool> pickAndUploadProfilePicture({dynamic source}) async {
+    // TODO: Implement after running flutter pub get
+    print('Image picker functionality will be implemented after pub get');
+    return false;
+  }
+
+  // Remove profile picture (set to default cat avatar)
+  Future<void> removeProfilePicture() async {
+    await updateUserAvatar(_defaultCatAvatar);
+  }
+
+  // Show image picker options
+  Future<bool> showImagePickerOptions() async {
+    // This will be called from UI to show options
+    return await pickAndUploadProfilePicture();
+  }
+
   // Clear user data (for logout)
   Future<void> _clearUserData() async {
     try {
@@ -1134,8 +1149,7 @@ class UserProvider extends ChangeNotifier {
         "id": null,
         "name": "Guest User",
         "email": "guest@example.com",
-        "avatar":
-            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+        "avatar": _defaultCatAvatar,
         "totalQuizTime": "0h 0m",
         "achievementBadges": 0,
         "joinedDate": DateTime.now().toIso8601String(),

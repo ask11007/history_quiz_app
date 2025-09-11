@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+// import 'package:image_picker/image_picker.dart';
 
 import '../../theme/theme_provider.dart';
 import '../../providers/user_provider.dart';
@@ -85,72 +86,113 @@ class _AccountScreenState extends State<AccountScreen>
   void _showProfilePictureOptions() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    // Pre-defined avatar options
-    final List<String> avatars = [
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
-      'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=face',
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=face',
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face',
-    ];
-
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Choose Your Avatar'),
-        content: Container(
-          width: 80.w,
-          height: 40.h,
-          child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 4.w,
-              mainAxisSpacing: 2.h,
-              childAspectRatio: 1,
-            ),
-            itemCount: avatars.length,
-            itemBuilder: (context, index) {
-              final avatar = avatars[index];
-
-              return GestureDetector(
-                onTap: () async {
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 10.w,
+                height: 0.5.h,
+                margin: EdgeInsets.only(top: 2.h),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.outline,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              SizedBox(height: 3.h),
+              Text(
+                'Change Profile Picture',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              SizedBox(height: 2.h),
+              _buildImageSourceOption(
+                context,
+                'Camera',
+                'camera_alt',
+                () async {
                   Navigator.pop(context);
-                  await userProvider.updateUserAvatar(avatar);
+                  // TODO: Implement camera functionality after pub get
                   Fluttertoast.showToast(
-                    msg: "Profile picture updated!",
+                    msg: "Camera functionality coming soon!",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
                   );
                 },
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: CustomImageWidget(
-                      imageUrl: avatar,
-                      width: 15.w,
-                      height: 15.w,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              );
-            },
+              ),
+              _buildImageSourceOption(
+                context,
+                'Gallery',
+                'photo_library',
+                () async {
+                  Navigator.pop(context);
+                  // TODO: Implement gallery functionality after pub get
+                  Fluttertoast.showToast(
+                    msg: "Gallery functionality coming soon!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                  );
+                },
+              ),
+              _buildImageSourceOption(
+                context,
+                'Remove Picture',
+                'delete',
+                () async {
+                  Navigator.pop(context);
+                  await userProvider.removeProfilePicture();
+                  Fluttertoast.showToast(
+                    msg: "Profile picture removed",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                  );
+                },
+              ),
+              SizedBox(height: 2.h),
+            ],
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-        ],
       ),
+    );
+  }
+
+  Widget _buildImageSourceOption(
+    BuildContext context,
+    String title,
+    String iconName,
+    VoidCallback onTap,
+  ) {
+    return ListTile(
+      leading: Container(
+        width: 12.w,
+        height: 12.w,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primaryContainer,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: CustomIconWidget(
+          iconName: iconName,
+          color: Theme.of(context).colorScheme.primary,
+          size: 6.w,
+        ),
+      ),
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+      ),
+      onTap: onTap,
+      contentPadding: EdgeInsets.symmetric(horizontal: 6.w),
     );
   }
 
