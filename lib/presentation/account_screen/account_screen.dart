@@ -121,7 +121,8 @@ class _AccountScreenState extends State<AccountScreen>
                 'camera_alt',
                 () async {
                   Navigator.pop(context);
-                  final success = await userProvider.pickAndUploadProfilePicture(
+                  final success =
+                      await userProvider.pickAndUploadProfilePicture(
                     source: ImageSource.camera,
                   );
                   if (success) {
@@ -146,7 +147,8 @@ class _AccountScreenState extends State<AccountScreen>
                 'photo_library',
                 () async {
                   Navigator.pop(context);
-                  final success = await userProvider.pickAndUploadProfilePicture(
+                  final success =
+                      await userProvider.pickAndUploadProfilePicture(
                     source: ImageSource.gallery,
                   );
                   if (success) {
@@ -268,6 +270,106 @@ class _AccountScreenState extends State<AccountScreen>
     }
   }
 
+  void _showAppFolderInfo() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final folderInfo = await userProvider.getAppFolderInfo();
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      // Show folder info dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.folder, color: Theme.of(context).colorScheme.primary),
+              SizedBox(width: 2.w),
+              Text('App Folder Info'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (folderInfo['exists'] == true) ...[
+                Text('📍 Location:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(folderInfo['path'], style: TextStyle(fontSize: 12)),
+                SizedBox(height: 2.h),
+                Text('📊 Statistics:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('• Folders: ${folderInfo['folder_count']}'),
+                Text('• Files: ${folderInfo['file_count']}'),
+                Text('• Size: ${_formatBytes(folderInfo['total_size'])}'),
+                SizedBox(height: 2.h),
+                Text('📁 Contains:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('• Profile Pictures'),
+                Text('• Quiz Data'),
+                Text('• Backups'),
+                Text('• Media Files'),
+              ] else ...[
+                Text('App folder not created yet.'),
+                SizedBox(height: 1.h),
+                Text('The folder will be created when you:'),
+                Text('• Update your profile picture'),
+                Text('• Export app data'),
+                Text('• Grant storage permissions'),
+              ],
+            ],
+          ),
+          actions: [
+            if (folderInfo['exists'] == true)
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context);
+                  await userProvider.exportUserDataToAppFolder();
+                  Fluttertoast.showToast(
+                    msg: "Data exported to app folder!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                  );
+                },
+                child: Text('Export Data'),
+              ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Close'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      // Close loading dialog
+      Navigator.pop(context);
+
+      Fluttertoast.showToast(
+        msg: "Error getting folder info: $e",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+      );
+    }
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -361,6 +463,12 @@ class _AccountScreenState extends State<AccountScreen>
                       subtitle: 'Update your personal information',
                       iconName: 'person',
                       onTap: _showEditNameDialog,
+                    ),
+                    SettingsItem(
+                      title: 'App Folder',
+                      subtitle: 'View app data folder info',
+                      iconName: 'folder',
+                      onTap: _showAppFolderInfo,
                     ),
                   ],
                 ),

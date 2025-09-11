@@ -6,6 +6,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:external_path/external_path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../core/services/supabase_service.dart';
 import '../core/services/connectivity_service.dart';
 import 'dart:math';
@@ -37,6 +44,7 @@ class UserProvider extends ChangeNotifier {
 
   UserProvider() {
     _initializeAuth();
+    _initializeAppFolder(); // Initialize app folder on startup
   }
 
   Map<String, dynamic> get userData => Map.from(_userData);
@@ -98,6 +106,24 @@ class UserProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // Initialize app folder structure on startup
+  Future<void> _initializeAppFolder() async {
+    try {
+      // Create app folder structure in background
+      final bool hasPermissions = await _requestStoragePermissions();
+      if (hasPermissions) {
+        await _createAppFolderStructure();
+        await _createAppReadmeFile();
+        print('✅ App folder initialized successfully');
+      } else {
+        print('⚠️  App folder creation skipped - no storage permissions');
+      }
+    } catch (e) {
+      print('Error initializing app folder: $e');
+      // Don't throw error, app should still work without external storage
     }
   }
 
@@ -644,7 +670,9 @@ class UserProvider extends ChangeNotifier {
           'id': userId,
           'name': prefs.getString('user_name') ?? 'User',
           'email': prefs.getString('user_email') ?? '',
-          'avatar': prefs.getString('user_avatar') ?? _userData['avatar'],
+          'avatar': prefs.getString('user_avatar') ??
+              prefs.getString('user_avatar_path') ??
+              _userData['avatar'],
         };
 
         _userData = {..._userData, ...parsedData};
@@ -747,11 +775,18 @@ class UserProvider extends ChangeNotifier {
       _userData["avatar"] = newAvatarUrl;
       await _saveUserData();
 
-      // Update in Supabase if authenticated
-      if (_isAuthenticated && _currentUser != null) {
+      // Also save avatar path separately for easy access
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_avatar_path', newAvatarUrl);
+
+      // Update in Supabase only if authenticated and it's a URL (not local file)
+      if (_isAuthenticated &&
+          _currentUser != null &&
+          newAvatarUrl.startsWith('http')) {
         await SupabaseService.client
             .from('user_profiles')
             .update({'avatar_url': newAvatarUrl}).eq('id', _currentUser!.id);
+        print('Avatar URL updated in database');
       }
 
       print('User avatar updated successfully: $newAvatarUrl');
@@ -1114,13 +1149,127 @@ class UserProvider extends ChangeNotifier {
   // Image picker and upload functionality
   final ImagePicker _imagePicker = ImagePicker();
 
-  // Pick and upload profile picture
-  Future<bool> pickAndUploadProfilePicture({ImageSource source = ImageSource.gallery}) async {
+  // App folder name (like WhatsApp)
+  static const String _appFolderName = 'Quiz Master';
+
+  // Request storage permissions
+  Future<bool> _requestStoragePermissions() async {
+    try {
+      print('Requesting storage permissions...');
+
+      // For Android 13+ (API 33+)
+      if (await Permission.photos.isDenied) {
+        final photoStatus = await Permission.photos.request();
+        if (!photoStatus.isGranted) {
+          print('Photos permission denied');
+          return false;
+        }
+      }
+
+      // For older Android versions
+      if (await Permission.storage.isDenied) {
+        final storageStatus = await Permission.storage.request();
+        if (!storageStatus.isGranted) {
+          print('Storage permission denied');
+          return false;
+        }
+      }
+
+      print('✅ Storage permissions granted');
+      return true;
+    } catch (e) {
+      print('Error requesting permissions: $e');
+      return false;
+    }
+  }
+
+  // Get external app folder path (like WhatsApp)
+  Future<String> _getExternalAppFolderPath() async {
+    try {
+      // Get external storage directory (like /storage/emulated/0/)
+      final String externalPath =
+          await ExternalPath.getExternalStoragePublicDirectory(
+              ExternalPath.DIRECTORY_PICTURES);
+
+      // Create our app folder path: /storage/emulated/0/Pictures/Quiz Master/
+      final String appFolderPath =
+          path.join(path.dirname(externalPath), _appFolderName);
+
+      print('App folder path: $appFolderPath');
+      return appFolderPath;
+    } catch (e) {
+      print('Error getting external path: $e');
+      // Fallback to internal storage
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      return path.join(appDir.path, _appFolderName);
+    }
+  }
+
+  // Create app folder structure (like WhatsApp)
+  Future<Directory> _createAppFolderStructure() async {
+    try {
+      final String appFolderPath = await _getExternalAppFolderPath();
+
+      // Create main app folder
+      final Directory appFolder = Directory(appFolderPath);
+      if (!await appFolder.exists()) {
+        await appFolder.create(recursive: true);
+        print('✅ Created app folder: $appFolderPath');
+      }
+
+      // Create subfolders
+      final List<String> subFolders = [
+        'Profile Pictures',
+        'Quiz Data',
+        'Backups',
+        'Media'
+      ];
+
+      for (String folderName in subFolders) {
+        final Directory subFolder =
+            Directory(path.join(appFolderPath, folderName));
+        if (!await subFolder.exists()) {
+          await subFolder.create(recursive: true);
+          print('✅ Created subfolder: ${subFolder.path}');
+        }
+      }
+
+      // Create a .nomedia file to prevent media scanner from indexing (optional)
+      final File nomediaFile =
+          File(path.join(appFolderPath, 'Profile Pictures', '.nomedia'));
+      if (!await nomediaFile.exists()) {
+        await nomediaFile.create();
+      }
+
+      return appFolder;
+    } catch (e) {
+      print('Error creating app folder structure: $e');
+      // Fallback to internal storage
+      final Directory appDir = await getApplicationDocumentsDirectory();
+      final Directory fallbackFolder =
+          Directory(path.join(appDir.path, _appFolderName));
+      if (!await fallbackFolder.exists()) {
+        await fallbackFolder.create(recursive: true);
+      }
+      return fallbackFolder;
+    }
+  }
+
+  // Pick and upload profile picture (EXTERNAL APP FOLDER STORAGE)
+  Future<bool> pickAndUploadProfilePicture(
+      {ImageSource source = ImageSource.gallery}) async {
     try {
       _isLoading = true;
       notifyListeners();
 
       print('Starting image picker with source: $source');
+
+      // Check and request permissions first
+      final bool hasPermissions = await _requestStoragePermissions();
+      if (!hasPermissions) {
+        print('Storage permissions not granted');
+        return false;
+      }
 
       // Pick image from device
       final XFile? pickedFile = await _imagePicker.pickImage(
@@ -1136,45 +1285,196 @@ class UserProvider extends ChangeNotifier {
       }
 
       print('Image picked: ${pickedFile.path}');
-      
-      // Upload to Supabase Storage
-      final String fileName = 'profile_${_userData['id']}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      
-      final File imageFile = File(pickedFile.path);
-      final Uint8List imageBytes = await imageFile.readAsBytes();
-      
-      print('Uploading image to Supabase storage...');
-      
-      // Upload to Supabase storage bucket
-      await SupabaseService.client.storage
-          .from('avatars')
-          .uploadBinary(fileName, imageBytes);
-      
-      // Get public URL
-      final String publicUrl = SupabaseService.client.storage
-          .from('avatars')
-          .getPublicUrl(fileName);
-      
-      print('Image uploaded successfully: $publicUrl');
-      
-      // Update user avatar
-      await updateUserAvatar(publicUrl);
-      
+
+      // Save image to external app folder
+      final String localImagePath = await _saveImageToAppFolder(pickedFile);
+
+      print('Image saved to app folder: $localImagePath');
+
+      // Update user avatar with local path
+      await updateUserAvatar(localImagePath);
+
       return true;
     } catch (e) {
-      print('Error uploading profile picture: $e');
-      
-      // If Supabase storage fails, just update with local file path for now
-      // This is a fallback - in production you'd want proper error handling
-      if (e.toString().contains('bucket') || e.toString().contains('storage')) {
-        print('Supabase storage not configured, using default avatar');
-        // You could implement local storage or show specific error message
-      }
-      
+      print('Error updating profile picture: $e');
       return false;
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  // Save image to external app folder (like WhatsApp)
+  Future<String> _saveImageToAppFolder(XFile pickedFile) async {
+    try {
+      // Create app folder structure
+      await _createAppFolderStructure();
+
+      // Get profile pictures folder path
+      final String appFolderPath = await _getExternalAppFolderPath();
+      final String profilePicturesPath =
+          path.join(appFolderPath, 'Profile Pictures');
+
+      // Create unique filename
+      final String fileName =
+          'profile_${_userData['id']}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final String localPath = path.join(profilePicturesPath, fileName);
+
+      // Copy image to app folder
+      final File sourceFile = File(pickedFile.path);
+      final File savedFile = await sourceFile.copy(localPath);
+
+      // Delete old profile image if it exists
+      await _deleteOldProfileImage();
+
+      print('✅ Image saved to app folder: ${savedFile.path}');
+      return savedFile.path;
+    } catch (e) {
+      print('Error saving image to app folder: $e');
+      throw Exception('Failed to save image to app folder');
+    }
+  }
+
+  // Delete old profile image to save space
+  Future<void> _deleteOldProfileImage() async {
+    try {
+      final String currentAvatar = _userData['avatar'] as String;
+
+      // Only delete if it's a local file path (not URL) and exists
+      if (currentAvatar.startsWith('/') && await File(currentAvatar).exists()) {
+        await File(currentAvatar).delete();
+        print('Deleted old profile image: $currentAvatar');
+      }
+    } catch (e) {
+      print('Error deleting old profile image: $e');
+      // Don't throw error, this is not critical
+    }
+  }
+
+  // Create README file in app folder (like WhatsApp info)
+  Future<void> _createAppReadmeFile() async {
+    try {
+      final String appFolderPath = await _getExternalAppFolderPath();
+      final File readmeFile = File(path.join(appFolderPath, 'README.txt'));
+
+      if (!await readmeFile.exists()) {
+        final String readmeContent = '''
+Quiz Master App Data Folder
+===========================
+
+This folder contains your Quiz Master app data:
+
+📁 Profile Pictures/
+   - Your profile photos and avatars
+   - Automatically resized for optimal performance
+
+📁 Quiz Data/
+   - Quiz statistics and progress data
+   - Achievement records
+
+📁 Backups/
+   - Local backups of your app data
+   - Profile settings and preferences
+
+📁 Media/
+   - Screenshots and shared content
+   - Downloaded quiz materials
+
+⚠️  Important Notes:
+- This folder is created by Quiz Master app
+- Data is stored locally on your device
+- You can safely back up this folder
+- Don't modify files manually to avoid data corruption
+
+App Version: 1.0.0
+Created: ${DateTime.now().toString()}
+
+For support: support@quizmaster.app
+''';
+
+        await readmeFile.writeAsString(readmeContent);
+        print('✅ Created README file in app folder');
+      }
+    } catch (e) {
+      print('Error creating README file: $e');
+    }
+  }
+
+  // Export user data to app folder
+  Future<void> exportUserDataToAppFolder() async {
+    try {
+      await _createAppFolderStructure();
+      await _createAppReadmeFile();
+
+      final String appFolderPath = await _getExternalAppFolderPath();
+      final String backupsPath = path.join(appFolderPath, 'Backups');
+
+      // Create user data backup
+      final String backupFileName =
+          'user_data_backup_${DateTime.now().millisecondsSinceEpoch}.json';
+      final File backupFile = File(path.join(backupsPath, backupFileName));
+
+      // Prepare user data for export
+      final Map<String, dynamic> exportData = {
+        'user_profile': _userData,
+        'app_version': '1.0.0',
+        'export_date': DateTime.now().toIso8601String(),
+        'device_info': Platform.operatingSystem,
+      };
+
+      await backupFile.writeAsString(
+          const JsonEncoder.withIndent('  ').convert(exportData));
+
+      print('✅ User data exported to: ${backupFile.path}');
+    } catch (e) {
+      print('Error exporting user data: $e');
+    }
+  }
+
+  // Get app folder info for user
+  Future<Map<String, dynamic>> getAppFolderInfo() async {
+    try {
+      final String appFolderPath = await _getExternalAppFolderPath();
+      final Directory appFolder = Directory(appFolderPath);
+
+      if (await appFolder.exists()) {
+        final List<FileSystemEntity> contents = await appFolder.list().toList();
+
+        return {
+          'exists': true,
+          'path': appFolderPath,
+          'folder_count':
+              contents.where((entity) => entity is Directory).length,
+          'file_count': contents.where((entity) => entity is File).length,
+          'total_size': await _calculateFolderSize(appFolder),
+        };
+      } else {
+        return {
+          'exists': false,
+          'path': appFolderPath,
+          'message': 'App folder not created yet',
+        };
+      }
+    } catch (e) {
+      return {
+        'exists': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+  // Calculate folder size
+  Future<int> _calculateFolderSize(Directory folder) async {
+    try {
+      int totalSize = 0;
+      await for (FileSystemEntity entity in folder.list(recursive: true)) {
+        if (entity is File) {
+          totalSize += await entity.length();
+        }
+      }
+      return totalSize;
+    } catch (e) {
+      return 0;
     }
   }
 
