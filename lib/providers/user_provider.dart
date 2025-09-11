@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'dart:typed_data';
 import '../core/services/supabase_service.dart';
 import '../core/services/connectivity_service.dart';
 import 'dart:math';
@@ -1111,24 +1112,81 @@ class UserProvider extends ChangeNotifier {
   }
 
   // Image picker and upload functionality
-  // final ImagePicker _imagePicker = ImagePicker();
+  final ImagePicker _imagePicker = ImagePicker();
 
   // Pick and upload profile picture
-  Future<bool> pickAndUploadProfilePicture({dynamic source}) async {
-    // TODO: Implement after running flutter pub get
-    print('Image picker functionality will be implemented after pub get');
-    return false;
-  }
+  Future<bool> pickAndUploadProfilePicture({ImageSource source = ImageSource.gallery}) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
 
-  // Remove profile picture (set to default cat avatar)
-  Future<void> removeProfilePicture() async {
-    await updateUserAvatar(_defaultCatAvatar);
+      print('Starting image picker with source: $source');
+
+      // Pick image from device
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 400,
+        maxHeight: 400,
+        imageQuality: 85,
+      );
+
+      if (pickedFile == null) {
+        print('No image selected');
+        return false;
+      }
+
+      print('Image picked: ${pickedFile.path}');
+      
+      // Upload to Supabase Storage
+      final String fileName = 'profile_${_userData['id']}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      
+      final File imageFile = File(pickedFile.path);
+      final Uint8List imageBytes = await imageFile.readAsBytes();
+      
+      print('Uploading image to Supabase storage...');
+      
+      // Upload to Supabase storage bucket
+      await SupabaseService.client.storage
+          .from('avatars')
+          .uploadBinary(fileName, imageBytes);
+      
+      // Get public URL
+      final String publicUrl = SupabaseService.client.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+      
+      print('Image uploaded successfully: $publicUrl');
+      
+      // Update user avatar
+      await updateUserAvatar(publicUrl);
+      
+      return true;
+    } catch (e) {
+      print('Error uploading profile picture: $e');
+      
+      // If Supabase storage fails, just update with local file path for now
+      // This is a fallback - in production you'd want proper error handling
+      if (e.toString().contains('bucket') || e.toString().contains('storage')) {
+        print('Supabase storage not configured, using default avatar');
+        // You could implement local storage or show specific error message
+      }
+      
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   // Show image picker options
   Future<bool> showImagePickerOptions() async {
     // This will be called from UI to show options
-    return await pickAndUploadProfilePicture();
+    return await pickAndUploadProfilePicture(source: ImageSource.gallery);
+  }
+
+  // Remove profile picture (set to default cat avatar)
+  Future<void> removeProfilePicture() async {
+    await updateUserAvatar(_defaultCatAvatar);
   }
 
   // Clear user data (for logout)

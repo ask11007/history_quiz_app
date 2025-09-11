@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-// import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../theme/theme_provider.dart';
 import '../../providers/user_provider.dart';
@@ -121,12 +121,23 @@ class _AccountScreenState extends State<AccountScreen>
                 'camera_alt',
                 () async {
                   Navigator.pop(context);
-                  // TODO: Implement camera functionality after pub get
-                  Fluttertoast.showToast(
-                    msg: "Camera functionality coming soon!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
+                  final success = await userProvider.pickAndUploadProfilePicture(
+                    source: ImageSource.camera,
                   );
+                  if (success) {
+                    Fluttertoast.showToast(
+                      msg: "Profile picture updated!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "Failed to update profile picture",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.red,
+                    );
+                  }
                 },
               ),
               _buildImageSourceOption(
@@ -135,12 +146,23 @@ class _AccountScreenState extends State<AccountScreen>
                 'photo_library',
                 () async {
                   Navigator.pop(context);
-                  // TODO: Implement gallery functionality after pub get
-                  Fluttertoast.showToast(
-                    msg: "Gallery functionality coming soon!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
+                  final success = await userProvider.pickAndUploadProfilePicture(
+                    source: ImageSource.gallery,
                   );
+                  if (success) {
+                    Fluttertoast.showToast(
+                      msg: "Profile picture updated!",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                    );
+                  } else {
+                    Fluttertoast.showToast(
+                      msg: "Failed to update profile picture",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      backgroundColor: Colors.red,
+                    );
+                  }
                 },
               ),
               _buildImageSourceOption(
