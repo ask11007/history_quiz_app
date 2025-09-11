@@ -69,9 +69,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             selectedItemColor: Theme.of(context).colorScheme.primary,
             unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-            selectedLabelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            selectedLabelStyle:
+                Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
             unselectedLabelStyle: Theme.of(context).textTheme.labelSmall,
             elevation: 0,
             items: _bottomNavItems,
