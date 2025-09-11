@@ -111,15 +111,10 @@ class UserProvider extends ChangeNotifier {
   // Initialize app folder structure on startup
   Future<void> _initializeAppFolder() async {
     try {
-      // Create app folder structure in background
-      final bool hasPermissions = await _requestStoragePermissions();
-      if (hasPermissions) {
-        await _createAppFolderStructure();
-        await _createAppReadmeFile();
-        print('✅ App folder initialized successfully');
-      } else {
-        print('⚠️  App folder creation skipped - no storage permissions');
-      }
+      // Create app folder structure in background (app-specific directories)
+      await _createAppFolderStructure();
+      await _createAppReadmeFile();
+      print('✅ App folder initialized successfully (app-specific storage)');
     } catch (e) {
       print('Error initializing app folder: $e');
       // Don't throw error, app should still work without external storage
@@ -1151,68 +1146,42 @@ class UserProvider extends ChangeNotifier {
   // App folder name (like WhatsApp)
   static const String _appFolderName = 'Quiz Master';
 
-  // Request storage permissions
+  // Request minimal permissions for image picker only
   Future<bool> _requestStoragePermissions() async {
     try {
-      print('Requesting storage permissions...');
+      print('Checking basic permissions for image picker...');
 
-      // For Android 13+ (API 33+)
-      if (await Permission.photos.isDenied) {
-        final photoStatus = await Permission.photos.request();
-        if (!photoStatus.isGranted) {
-          print('Photos permission denied');
-          return false;
-        }
-      }
+      // Only request camera permission if using camera
+      // Gallery access on modern Android doesn't need explicit storage permission
+      // when using proper image picker
 
-      // For older Android versions
-      if (await Permission.storage.isDenied) {
-        final storageStatus = await Permission.storage.request();
-        if (!storageStatus.isGranted) {
-          print('Storage permission denied');
-          return false;
-        }
-      }
-
-      print('✅ Storage permissions granted');
+      print('✅ Using app-specific storage - no special permissions needed');
       return true;
     } catch (e) {
-      print('Error requesting permissions: $e');
-      return false;
+      print('Error checking permissions: $e');
+      return true; // Don't fail the operation
     }
   }
 
-  // Get external app folder path (alternative implementation)
+  // Get app-specific folder path (no special permissions needed)
   Future<String> _getExternalAppFolderPath() async {
     try {
-      Directory? externalDir;
+      Directory? appDir;
 
       if (Platform.isAndroid) {
-        // Try to get external storage directories
-        externalDir = await getExternalStorageDirectory();
-
-        if (externalDir != null) {
-          // Navigate to the public storage area
-          // From: /storage/emulated/0/Android/data/com.quiz_master.app/files
-          // To: /storage/emulated/0/Quiz Master
-          final List<String> pathParts = externalDir.path.split('/');
-          final int androidIndex = pathParts.indexOf('Android');
-
-          if (androidIndex > 0) {
-            final String publicPath =
-                pathParts.sublist(0, androidIndex).join('/');
-            final String appFolderPath = path.join(publicPath, _appFolderName);
-            print('App folder path: $appFolderPath');
-            return appFolderPath;
-          }
-        }
+        // Use app-specific external storage directory
+        // This doesn't require MANAGE_EXTERNAL_STORAGE permission
+        appDir = await getExternalStorageDirectory();
       }
 
-      // Fallback to app-specific external directory
-      externalDir ??= await getApplicationDocumentsDirectory();
-      return path.join(externalDir.path, _appFolderName);
+      // Fallback to application documents directory
+      appDir ??= await getApplicationDocumentsDirectory();
+
+      final String appFolderPath = path.join(appDir.path, _appFolderName);
+      print('App folder path (app-specific): $appFolderPath');
+      return appFolderPath;
     } catch (e) {
-      print('Error getting external path: $e');
+      print('Error getting app folder path: $e');
       // Final fallback to internal storage
       final Directory appDir = await getApplicationDocumentsDirectory();
       return path.join(appDir.path, _appFolderName);
@@ -1269,23 +1238,16 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  // Pick and upload profile picture (EXTERNAL APP FOLDER STORAGE)
+  // Pick and upload profile picture (Simplified app-specific storage)
   Future<bool> pickAndUploadProfilePicture(
       {ImageSource source = ImageSource.gallery}) async {
     try {
       _isLoading = true;
       notifyListeners();
 
-      print('Starting image picker with source: $source');
+      print('🖼️ Starting image picker with source: $source');
 
-      // Check and request permissions first
-      final bool hasPermissions = await _requestStoragePermissions();
-      if (!hasPermissions) {
-        print('Storage permissions not granted');
-        return false;
-      }
-
-      // Pick image from device
+      // Pick image from device (no permissions needed for modern image picker)
       final XFile? pickedFile = await _imagePicker.pickImage(
         source: source,
         maxWidth: 400,
@@ -1294,23 +1256,25 @@ class UserProvider extends ChangeNotifier {
       );
 
       if (pickedFile == null) {
-        print('No image selected');
+        print('❌ No image selected');
         return false;
       }
 
-      print('Image picked: ${pickedFile.path}');
+      print('✅ Image picked: ${pickedFile.path}');
 
-      // Save image to external app folder
+      // Save image to app-specific folder (always works)
       final String localImagePath = await _saveImageToAppFolder(pickedFile);
 
-      print('Image saved to app folder: $localImagePath');
+      print('✅ Image saved to app folder: $localImagePath');
 
       // Update user avatar with local path
       await updateUserAvatar(localImagePath);
 
+      print('✅ Profile picture updated successfully!');
       return true;
     } catch (e) {
-      print('Error updating profile picture: $e');
+      print('❌ Error updating profile picture: $e');
+      print('Stack trace: ${StackTrace.current}');
       return false;
     } finally {
       _isLoading = false;
