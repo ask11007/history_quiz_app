@@ -15,8 +15,7 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _AuthScreenState extends State<AuthScreen>
-    with TickerProviderStateMixin {
+class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   bool _isLoading = false;
 
   late AnimationController _fadeController;
@@ -198,7 +197,7 @@ class _AuthScreenState extends State<AuthScreen>
 
                 // App Title
                 Text(
-                  'Quiz Master',
+                  'Polity 5000+',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),

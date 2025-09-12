@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
       builder: (context, themeProvider, child) {
         return Sizer(builder: (context, orientation, screenType) {
           return MaterialApp(
-            title: 'Quiz Master',
+            title: 'Polity 5000+',
             theme: themeProvider.lightTheme,
             darkTheme: themeProvider.darkTheme,
             themeMode: themeProvider.themeMode,
@@ -181,7 +181,7 @@ class AuthWrapper extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Quiz Master',
+              'Polity 5000+',
               style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

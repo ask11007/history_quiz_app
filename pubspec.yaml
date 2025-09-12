@@ -1,5 +1,5 @@
-name: quiz_master
-description: A Quiz Master app with Supabase integration for dynamic quiz questions.
+name: polity_5000_plus
+description: Polity 5000+ - A comprehensive political science quiz app with advanced question bank and Supabase integration.
 publish_to: none
 version: 1.0.0+1
 

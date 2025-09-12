@@ -128,7 +128,7 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
 
       print('📱 === STARTING GOOGLE SIGN-IN (DIRECT STORAGE) ===');
-      print('Package name: com.quiz_master.app');
+      print('Package name: com.polity5000plus.app');
 
       // Initialize Google Sign-In for Android
       final GoogleSignIn googleSignIn = GoogleSignIn(
@@ -182,7 +182,7 @@ class UserProvider extends ChangeNotifier {
         throw Exception('Google Sign-In configuration error.\n'
             'Please ensure:\n'
             '• Android OAuth client is configured in Google Cloud Console\n'
-            '• Package name: com.quiz_master.app\n'
+            '• Package name: com.polity5000plus.app\n'
             '• SHA-1 fingerprint is correct\n'
             '• google-services.json is in android/app/ directory');
       } else if (e.toString().contains('ApiException: 7')) {
@@ -876,7 +876,8 @@ class UserProvider extends ChangeNotifier {
       print(
           '     4. Configure in Supabase Dashboard → Authentication → Providers');
       print('     5. Enable Google provider with Client ID & Secret');
-      print('   - Deep link configured: com.quiz_master.app://login-callback/');
+      print(
+          '   - Deep link configured: com.polity5000plus.app://login-callback/');
     } catch (e) {
       print('❌ Authentication flow test failed: $e');
     }
@@ -1144,7 +1145,7 @@ class UserProvider extends ChangeNotifier {
   final ImagePicker _imagePicker = ImagePicker();
 
   // App folder name (like WhatsApp)
-  static const String _appFolderName = 'Quiz Master';
+  static const String _appFolderName = 'Polity 5000+';
 
   // Request minimal permissions for image picker only
   Future<bool> _requestStoragePermissions() async {
@@ -1337,10 +1338,10 @@ class UserProvider extends ChangeNotifier {
 
       if (!await readmeFile.exists()) {
         final String readmeContent = '''
-Quiz Master App Data Folder
+Polity 5000+ App Data Folder
 ===========================
 
-This folder contains your Quiz Master app data:
+This folder contains your Polity 5000+ app data:
 
 📁 Profile Pictures/
    - Your profile photos and avatars
@@ -1359,7 +1360,7 @@ This folder contains your Quiz Master app data:
    - Downloaded quiz materials
 
 ⚠️  Important Notes:
-- This folder is created by Quiz Master app
+- This folder is created by Polity 5000+ app
 - Data is stored locally on your device
 - You can safely back up this folder
 - Don't modify files manually to avoid data corruption

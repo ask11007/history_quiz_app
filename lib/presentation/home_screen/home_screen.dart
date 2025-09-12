@@ -68,7 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
               print('❌ Connection lost - showing offline state...');
               setState(() {
                 _subjectsData = [];
-                _isLoadingSubjects = false; // CRITICAL: Stop any ongoing loading
+                _isLoadingSubjects =
+                    false; // CRITICAL: Stop any ongoing loading
                 _hasConnectionError = true;
               });
             }
@@ -107,7 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
         const Duration(seconds: 5),
         onTimeout: () {
           print('⚠️ Supabase request timed out after 5 seconds');
-          throw TimeoutException('Supabase request timed out', const Duration(seconds: 5));
+          throw TimeoutException(
+              'Supabase request timed out', const Duration(seconds: 5));
         },
       );
 
@@ -172,7 +174,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _cachedSubjectsData = List.from(subjects);
         _hasLoadedOnce = true;
 
-        print('✅ Successfully loaded ${subjects.length} subjects from Supabase:');
+        print(
+            '✅ Successfully loaded ${subjects.length} subjects from Supabase:');
         for (var subject in subjects) {
           print('  - ${subject["name"]} (${subject["originalTag"]})');
         }
@@ -216,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Double-check connectivity with real internet test
       print('🔍 Checking internet connectivity...');
       final hasInternet = await _connectivityService.hasInternetConnection();
-      
+
       if (!hasInternet) {
         print('❌ No internet connection detected - showing offline state');
         setState(() {
@@ -230,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print('✅ Internet connection confirmed - loading from Supabase...');
       // Try to load from Supabase
       await _loadSubjectsFromSupabase();
-      
     } catch (e) {
       print('❌ Error in _loadSubjects: $e');
       // Ensure loading state is always reset on error
@@ -316,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(width: 3.w),
                           Text(
-                            'Quiz Master',
+                            'Polity 5000+',
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall
@@ -443,16 +445,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           SizedBox(height: 3.h),
                           ElevatedButton.icon(
-                            onPressed: _isLoadingSubjects ? null : () async {
-                              print('🔄 Manual retry requested...');
-                              
-                              // Force immediate connectivity check
-                              await _connectivityService
-                                  .forceConnectivityCheck();
+                            onPressed: _isLoadingSubjects
+                                ? null
+                                : () async {
+                                    print('🔄 Manual retry requested...');
 
-                              // Load subjects with proper error handling
-                              await _loadSubjects();
-                            },
+                                    // Force immediate connectivity check
+                                    await _connectivityService
+                                        .forceConnectivityCheck();
+
+                                    // Load subjects with proper error handling
+                                    await _loadSubjects();
+                                  },
                             icon: CustomIconWidget(
                               iconName: 'refresh',
                               color: Colors.white,
@@ -520,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refreshData() async {
     print('🔄 Manual refresh triggered...');
-    
+
     // Prevent refresh if already loading
     if (_isLoadingSubjects) {
       print('⚠️ Already loading, skipping refresh...');

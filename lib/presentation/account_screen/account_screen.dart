@@ -501,7 +501,7 @@ class _AccountScreenState extends State<AccountScreen>
                           iconName: 'info',
                           onTap: () {
                             Fluttertoast.showToast(
-                              msg: "Quiz Master v1.0.0",
+                              msg: "Polity 5000+ v1.0.0",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
                             );

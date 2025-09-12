@@ -1,4 +1,4 @@
-package com.quiz_master.app
+package com.polity5000plus.app
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.plugins.GeneratedPluginRegistrant

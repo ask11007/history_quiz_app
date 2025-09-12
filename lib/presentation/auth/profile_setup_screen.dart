@@ -66,7 +66,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen>
 
       if (success && mounted) {
         Fluttertoast.showToast(
-          msg: "Welcome to Quiz Master, ${_nameController.text.trim()}!",
+          msg: "Welcome to Polity 5000+, ${_nameController.text.trim()}!",
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.green,

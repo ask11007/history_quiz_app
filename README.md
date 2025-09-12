@@ -1,6 +1,6 @@
-# Flutter
+# Polity 5000+
 
-A modern Flutter-based mobile application utilizing the latest mobile development technologies and tools for building responsive cross-platform applications.
+A comprehensive political science quiz application featuring 5000+ questions, user authentication, interactive quizzes, and personalized user profiles.
 
 ## 📋 Prerequisites
 
@@ -24,74 +24,62 @@ flutter run
 ## 📁 Project Structure
 
 ```
-flutter_app/
-├── android/            # Android-specific configuration
-├── ios/                # iOS-specific configuration
+history_quiz_app/
+├── android/                    # Android-specific configuration
+├── assets/                     # Static assets (images, fonts, etc.)
 ├── lib/
-│   ├── core/           # Core utilities and services
-│   │   └── utils/      # Utility classes
-│   ├── presentation/   # UI screens and widgets
-│   │   └── splash_screen/ # Splash screen implementation
-│   ├── routes/         # Application routing
-│   ├── theme/          # Theme configuration
-│   ├── widgets/        # Reusable UI components
-│   └── main.dart       # Application entry point
-├── assets/             # Static assets (images, fonts, etc.)
-├── pubspec.yaml        # Project dependencies and configuration
-└── README.md           # Project documentation
+│   ├── core/                   # Core utilities and services
+│   │   ├── config/             # App configuration
+│   │   ├── models/             # Data models
+│   │   ├── services/           # Backend services
+│   │   └── app_export.dart     # Core exports
+│   ├── presentation/           # UI screens and widgets
+│   │   ├── auth/               # Authentication screens
+│   │   ├── home_screen/        # Home screen and widgets
+│   │   ├── quiz_screen/        # Quiz interface
+│   │   ├── account_screen/     # User account management
+│   │   ├── sub_topic_screen/   # Topic selection
+│   │   └── main_navigation_screen.dart
+│   ├── providers/              # State management
+│   ├── routes/                 # Application routing
+│   ├── theme/                  # Theme configuration
+│   ├── widgets/                # Reusable UI components
+│   └── main.dart               # Application entry point
+├── pubspec.yaml                # Project dependencies
+├── README.md                   # Project documentation
+└── SUPABASE_SETUP.md          # Backend setup guide
 ```
 
-## 🧩 Adding Routes
+## 🚀 Features
 
-To add new routes to the application, update the `lib/routes/app_routes.dart` file:
+- **User Authentication**: Google Sign-In and Guest access
+- **Interactive Quizzes**: History-focused questions with multiple choice answers
+- **User Profiles**: Customizable profiles with profile pictures
+- **Progress Tracking**: Track quiz performance and statistics
+- **Responsive Design**: Optimized for various mobile device sizes
+- **Theme Support**: Light and dark mode themes
+- **Local Storage**: Profile pictures and app data stored locally
 
-```dart
-import 'package:flutter/material.dart';
-import 'package:package_name/presentation/home_screen/home_screen.dart';
+## 🔧 Backend Setup
 
-class AppRoutes {
-  static const String initial = '/';
-  static const String home = '/home';
+This app uses Supabase as the backend service. For detailed setup instructions, see [SUPABASE_SETUP.md](SUPABASE_SETUP.md).
 
-  static Map<String, WidgetBuilder> routes = {
-    initial: (context) => const SplashScreen(),
-    home: (context) => const HomeScreen(),
-    // Add more routes as needed
-  }
-}
-```
+### Quick Setup:
+1. Create a Supabase project
+2. Update `lib/core/config/supabase_config.dart` with your credentials
+3. Set up the required database tables (see SUPABASE_SETUP.md)
+4. Configure Google OAuth for authentication
 
-## 🎨 Theming
+## 🎨 Tech Stack
 
-This project includes a comprehensive theming system with both light and dark themes:
-
-```dart
-// Access the current theme
-ThemeData theme = Theme.of(context);
-
-// Use theme colors
-Color primaryColor = theme.colorScheme.primary;
-```
-
-The theme configuration includes:
-- Color schemes for light and dark modes
-- Typography styles
-- Button themes
-- Input decoration themes
-- Card and dialog themes
-
-## 📱 Responsive Design
-
-The app is built with responsive design using the Sizer package:
-
-```dart
-// Example of responsive sizing
-Container(
-  width: 50.w, // 50% of screen width
-  height: 20.h, // 20% of screen height
-  child: Text('Responsive Container'),
-)
-```
+- **Framework**: Flutter 3.29.2
+- **Language**: Dart
+- **Backend**: Supabase (PostgreSQL database, Authentication, Storage)
+- **State Management**: Provider pattern
+- **UI**: Material Design with custom theming
+- **Authentication**: Google Sign-In + Supabase Auth
+- **Responsive Design**: Sizer package
+- **Image Handling**: Image picker for profile pictures
 ## 📦 Deployment
 
 Build the application for production:
