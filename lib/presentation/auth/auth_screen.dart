@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_export.dart';
 import '../../providers/user_provider.dart';
@@ -198,9 +199,12 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                 // App Title
                 Text(
                   'Polity 5000+',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  style: GoogleFonts.cabin(
+                    fontSize:
+                        Theme.of(context).textTheme.headlineMedium?.fontSize,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.headlineMedium?.color,
+                  ),
                   textAlign: TextAlign.center,
                 ),
 

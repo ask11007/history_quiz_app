@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_export.dart';
 import '../../core/services/supabase_service.dart';
@@ -321,12 +322,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           SizedBox(width: 3.w),
                           Text(
                             'Polity 5000+',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            style: GoogleFonts.cabin(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.fontSize,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.color,
+                            ),
                           ),
                         ],
                       ),

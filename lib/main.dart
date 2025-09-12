@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../core/app_export.dart';
 import '../widgets/custom_error_widget.dart';
@@ -182,9 +183,11 @@ class AuthWrapper extends StatelessWidget {
             SizedBox(height: 4.h),
             Text(
               'Polity 5000+',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: GoogleFonts.cabin(
+                fontSize: Theme.of(context).textTheme.headlineLarge?.fontSize,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.headlineLarge?.color,
+              ),
             ),
             SizedBox(height: 2.h),
             CircularProgressIndicator(
