@@ -393,11 +393,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 SliverPadding(
                   padding: EdgeInsets.symmetric(horizontal: 4.w),
                   sliver: SliverGrid(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // 2 subjects per row
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 45.w, // Maximum width per card
                       crossAxisSpacing: 3.w, // Space between columns
                       mainAxisSpacing: 2.h, // Space between rows
-                      childAspectRatio: 1.5, // Width to height ratio
+                      childAspectRatio:
+                          2.0, // Initial ratio, will be overridden by flexible height
                     ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {

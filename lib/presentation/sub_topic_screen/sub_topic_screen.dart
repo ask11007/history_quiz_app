@@ -258,13 +258,14 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                                 padding: EdgeInsets.symmetric(horizontal: 4.w),
                                 child: GridView.builder(
                                   gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2, // 2 sub-topics per row
+                                      SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent:
+                                        45.w, // Maximum width per card
                                     crossAxisSpacing:
                                         3.w, // Space between columns
                                     mainAxisSpacing: 2.h, // Space between rows
                                     childAspectRatio:
-                                        1.5, // Width to height ratio
+                                        2.0, // Initial ratio, will be overridden by flexible height
                                   ),
                                   itemCount: _subTopicsData.length,
                                   itemBuilder: (context, index) {
