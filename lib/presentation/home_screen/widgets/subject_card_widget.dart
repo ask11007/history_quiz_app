@@ -106,6 +106,8 @@ class SubjectCardWidget extends StatelessWidget {
                   gravity: ToastGravity.BOTTOM,
                   timeInSecForIosWeb: 1,
                   fontSize: 16.0,
+                  backgroundColor: Colors.blue,
+                  textColor: Colors.white,
                 );
               },
             ),

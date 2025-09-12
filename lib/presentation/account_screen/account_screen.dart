@@ -76,6 +76,8 @@ class _AccountScreenState extends State<AccountScreen>
                 gravity: ToastGravity.BOTTOM,
                 timeInSecForIosWeb: 1,
                 fontSize: 16.0,
+                backgroundColor: Colors.green,
+                textColor: Colors.white,
               );
             },
             child: Text('Save'),
@@ -134,6 +136,8 @@ class _AccountScreenState extends State<AccountScreen>
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIosWeb: 1,
                       fontSize: 16.0,
+                      backgroundColor: Colors.green,
+                      textColor: Colors.white,
                     );
                   } else {
                     Fluttertoast.showToast(
@@ -143,6 +147,7 @@ class _AccountScreenState extends State<AccountScreen>
                       backgroundColor: Colors.red,
                       timeInSecForIosWeb: 1,
                       fontSize: 16.0,
+                      textColor: Colors.white,
                     );
                   }
                 },
@@ -164,6 +169,8 @@ class _AccountScreenState extends State<AccountScreen>
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIosWeb: 1,
                       fontSize: 16.0,
+                      backgroundColor: Colors.green,
+                      textColor: Colors.white,
                     );
                   } else {
                     Fluttertoast.showToast(
@@ -173,6 +180,7 @@ class _AccountScreenState extends State<AccountScreen>
                       backgroundColor: Colors.red,
                       timeInSecForIosWeb: 1,
                       fontSize: 16.0,
+                      textColor: Colors.white,
                     );
                   }
                 },
@@ -190,6 +198,8 @@ class _AccountScreenState extends State<AccountScreen>
                     gravity: ToastGravity.BOTTOM,
                     timeInSecForIosWeb: 1,
                     fontSize: 16.0,
+                    backgroundColor: Colors.orange,
+                    textColor: Colors.white,
                   );
                 },
               ),
@@ -242,6 +252,8 @@ class _AccountScreenState extends State<AccountScreen>
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
       fontSize: 16.0,
+      backgroundColor: Colors.black87,
+      textColor: Colors.white,
     );
   }
 
@@ -256,6 +268,8 @@ class _AccountScreenState extends State<AccountScreen>
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
         fontSize: 16.0,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
       );
 
       await userProvider.signOut();
@@ -273,6 +287,8 @@ class _AccountScreenState extends State<AccountScreen>
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
           fontSize: 16.0,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
         );
       }
     } catch (e) {
@@ -356,6 +372,8 @@ class _AccountScreenState extends State<AccountScreen>
                     gravity: ToastGravity.BOTTOM,
                     timeInSecForIosWeb: 1,
                     fontSize: 16.0,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
                   );
                 },
                 child: Text('Export Data'),
@@ -378,6 +396,7 @@ class _AccountScreenState extends State<AccountScreen>
         backgroundColor: Colors.red,
         timeInSecForIosWeb: 1,
         fontSize: 16.0,
+        textColor: Colors.white,
       );
     }
   }
@@ -525,6 +544,8 @@ class _AccountScreenState extends State<AccountScreen>
                               gravity: ToastGravity.BOTTOM,
                               timeInSecForIosWeb: 1,
                               fontSize: 16.0,
+                              backgroundColor: Colors.blue,
+                              textColor: Colors.white,
                             );
                           },
                         ),
