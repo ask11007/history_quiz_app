@@ -412,7 +412,7 @@ class _AccountScreenState extends State<AccountScreen>
                         child: Padding(
                           padding: EdgeInsets.all(1.w),
                           child: Image.asset(
-                            'assets/images/app_icon.png',
+                            'assets/images/app_logo.png',
                             width: 8.w,
                             height: 8.w,
                             fit: BoxFit.contain,
