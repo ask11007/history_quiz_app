@@ -547,22 +547,13 @@ class _HomeScreenState extends State<HomeScreen> {
       HapticFeedback.lightImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
-            children: [
-              CustomIconWidget(
-                iconName: 'refresh',
-                color: Colors.white,
-                size: 20,
-              ),
-              SizedBox(width: 2.w),
-              Text(
-                'Topics refreshed successfully',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white,
-                    ),
-              ),
-            ],
+          content: Text(
+            'Topics refreshed successfully',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.white,
+                ),
           ),
+          backgroundColor: Theme.of(context).colorScheme.primary,
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
           margin: EdgeInsets.all(4.w),

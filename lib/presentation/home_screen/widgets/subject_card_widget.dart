@@ -104,6 +104,8 @@ class SubjectCardWidget extends StatelessWidget {
                   msg: "Statistics feature coming soon!",
                   toastLength: Toast.LENGTH_SHORT,
                   gravity: ToastGravity.BOTTOM,
+                  timeInSecForIosWeb: 1,
+                  fontSize: 16.0,
                 );
               },
             ),

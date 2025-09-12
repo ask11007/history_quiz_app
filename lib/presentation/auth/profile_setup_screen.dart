@@ -71,6 +71,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen>
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.green,
           textColor: Colors.white,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
 
         // Navigate to main app
@@ -89,6 +91,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen>
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.red,
           textColor: Colors.white,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
       }
     } finally {

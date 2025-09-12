@@ -60,6 +60,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.green,
           textColor: Colors.white,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
       }
     } catch (e) {
@@ -71,6 +73,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.red,
           textColor: Colors.white,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
       }
     } finally {
@@ -97,6 +101,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.orange,
           textColor: Colors.white,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
 
         // AuthWrapper will handle navigation automatically
@@ -114,6 +120,8 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.red,
           textColor: Colors.white,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
       }
     } finally {

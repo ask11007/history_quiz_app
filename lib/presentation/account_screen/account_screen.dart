@@ -74,6 +74,8 @@ class _AccountScreenState extends State<AccountScreen>
                 msg: "Name updated successfully!",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                fontSize: 16.0,
               );
             },
             child: Text('Save'),
@@ -130,6 +132,8 @@ class _AccountScreenState extends State<AccountScreen>
                       msg: "Profile picture updated!",
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      fontSize: 16.0,
                     );
                   } else {
                     Fluttertoast.showToast(
@@ -137,6 +141,8 @@ class _AccountScreenState extends State<AccountScreen>
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                       backgroundColor: Colors.red,
+                      timeInSecForIosWeb: 1,
+                      fontSize: 16.0,
                     );
                   }
                 },
@@ -156,6 +162,8 @@ class _AccountScreenState extends State<AccountScreen>
                       msg: "Profile picture updated!",
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      fontSize: 16.0,
                     );
                   } else {
                     Fluttertoast.showToast(
@@ -163,6 +171,8 @@ class _AccountScreenState extends State<AccountScreen>
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                       backgroundColor: Colors.red,
+                      timeInSecForIosWeb: 1,
+                      fontSize: 16.0,
                     );
                   }
                 },
@@ -178,6 +188,8 @@ class _AccountScreenState extends State<AccountScreen>
                     msg: "Profile picture removed",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    fontSize: 16.0,
                   );
                 },
               ),
@@ -228,6 +240,8 @@ class _AccountScreenState extends State<AccountScreen>
       msg: value ? "Dark mode enabled" : "Light mode enabled",
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      fontSize: 16.0,
     );
   }
 
@@ -240,6 +254,8 @@ class _AccountScreenState extends State<AccountScreen>
         msg: "Signing out...",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        fontSize: 16.0,
       );
 
       await userProvider.signOut();
@@ -255,6 +271,8 @@ class _AccountScreenState extends State<AccountScreen>
           msg: "Signed out successfully",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
       }
     } catch (e) {
@@ -265,6 +283,8 @@ class _AccountScreenState extends State<AccountScreen>
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.red,
           textColor: Colors.white,
+          timeInSecForIosWeb: 1,
+          fontSize: 16.0,
         );
       }
     }
@@ -292,13 +312,7 @@ class _AccountScreenState extends State<AccountScreen>
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.folder, color: Theme.of(context).colorScheme.primary),
-              SizedBox(width: 2.w),
-              Text('App Folder Info'),
-            ],
-          ),
+          title: Text('App Folder Info'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,6 +354,8 @@ class _AccountScreenState extends State<AccountScreen>
                     msg: "Data exported to app folder!",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    fontSize: 16.0,
                   );
                 },
                 child: Text('Export Data'),
@@ -360,6 +376,8 @@ class _AccountScreenState extends State<AccountScreen>
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
+        timeInSecForIosWeb: 1,
+        fontSize: 16.0,
       );
     }
   }
@@ -502,9 +520,11 @@ class _AccountScreenState extends State<AccountScreen>
                           iconName: 'info',
                           onTap: () {
                             Fluttertoast.showToast(
-                              msg: "Polity 5000+ v1.0.0",
+                              msg: "Polity 5000+ v1.0.1",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              fontSize: 16.0,
                             );
                           },
                         ),
