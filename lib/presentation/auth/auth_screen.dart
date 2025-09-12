@@ -150,7 +150,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   height: 28.w,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    shape: BoxShape.circle, // Changed to circular shape
                     boxShadow: [
                       BoxShadow(
                         color: Theme.of(context)
@@ -177,7 +177,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                           height: 24.w,
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(15),
+                            shape: BoxShape.circle, // Changed to circular shape
                           ),
                           child: Padding(
                             padding: EdgeInsets.all(2.w),

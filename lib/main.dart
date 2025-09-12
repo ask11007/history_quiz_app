@@ -139,7 +139,7 @@ class AuthWrapper extends StatelessWidget {
               height: 20.w,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                shape: BoxShape.circle, // Changed to circular shape
                 boxShadow: [
                   BoxShadow(
                     color:
@@ -164,7 +164,7 @@ class AuthWrapper extends StatelessWidget {
                       height: 16.w,
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(15),
+                        shape: BoxShape.circle, // Changed to circular shape
                       ),
                       child: Padding(
                         padding: EdgeInsets.all(2.w),

@@ -397,7 +397,7 @@ class _AccountScreenState extends State<AccountScreen>
                         height: 10.w,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          shape: BoxShape.circle, // Changed to circular shape
                           boxShadow: [
                             BoxShadow(
                               color: Theme.of(context)
@@ -420,7 +420,8 @@ class _AccountScreenState extends State<AccountScreen>
                               return Container(
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(10),
+                                  shape: BoxShape
+                                      .circle, // Changed to circular shape
                                 ),
                                 child: CustomIconWidget(
                                   iconName: 'quiz',

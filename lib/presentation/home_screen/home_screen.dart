@@ -280,7 +280,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 10.w,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
+                              shape: BoxShape
+                                  .circle, // Changed from borderRadius to circular shape
                               boxShadow: [
                                 BoxShadow(
                                   color: Theme.of(context)
@@ -304,7 +305,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     decoration: BoxDecoration(
                                       color:
                                           Theme.of(context).colorScheme.primary,
-                                      borderRadius: BorderRadius.circular(10),
+                                      shape: BoxShape
+                                          .circle, // Changed to circular shape
                                     ),
                                     child: CustomIconWidget(
                                       iconName: 'quiz',
