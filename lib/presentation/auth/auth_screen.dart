@@ -166,7 +166,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                   child: Padding(
                     padding: EdgeInsets.all(2.w),
                     child: Image.asset(
-                      'assets/images/app_icon.png',
+                      'assets/images/app_logo.png',
                       width: 24.w,
                       height: 24.w,
                       fit: BoxFit.contain,

@@ -153,7 +153,7 @@ class AuthWrapper extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.all(2.w),
                 child: Image.asset(
-                  'assets/images/app_icon.png',
+                  'assets/images/app_logo.png',
                   width: 16.w,
                   height: 16.w,
                   fit: BoxFit.contain,
