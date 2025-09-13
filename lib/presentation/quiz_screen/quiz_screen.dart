@@ -8,6 +8,7 @@ import '../../core/models/question_model.dart';
 import '../../core/models/quiz_state_model.dart';
 import '../../core/services/supabase_service.dart';
 import '../../core/services/connectivity_service.dart';
+import '../../core/services/ad_service.dart';
 import './widgets/explanation_widget.dart';
 import './widgets/option_card_widget.dart';
 import './widgets/question_card_widget.dart';
@@ -238,9 +239,27 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _finishQuiz() {
+    // Increment ad counter for frequency control
+    AdService.instance.incrementActionCounter();
+
     // Calculate simple quiz summary
     final summary = _quizStateManager.getQuizSummary(_quizData);
 
+    // Try to show interstitial ad before results
+    AdService.instance.showInterstitialAd().then((adShown) {
+      if (adShown) {
+        print('🎆 Interstitial ad shown after quiz completion');
+      }
+
+      // Show results dialog (with slight delay if ad was shown)
+      Future.delayed(
+        Duration(milliseconds: adShown ? 500 : 0),
+        () => _showQuizResultsDialog(summary),
+      );
+    });
+  }
+
+  void _showQuizResultsDialog(Map<String, int> summary) {
     // Show simple popup dialog
     showDialog(
       context: context,
@@ -289,64 +308,202 @@ class _QuizScreenState extends State<QuizScreen> {
                       const Color(0xFFFF9800)),
                 ],
               ),
+
+              // Rewarded ad option for quiz retry
+              if (AdService.instance.isRewardedAdReady) ...[
+                SizedBox(height: 3.h),
+                Container(
+                  padding: EdgeInsets.all(3.w),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primaryContainer
+                        .withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.3),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.video_library,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 6.w,
+                      ),
+                      SizedBox(height: 1.h),
+                      Text(
+                        'Watch ad to retry wrong answers',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         ),
         actions: [
-          Row(
+          Column(
             children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close dialog only
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              // Rewarded ad button (if available)
+              if (AdService.instance.isRewardedAdReady)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showRewardedAdForRetry(),
+                    icon: Icon(Icons.play_circle_fill, color: Colors.white),
+                    label: Text(
+                      'Watch Ad & Retry Wrong Answers',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline,
-                      width: 1.5,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    '❌ Cancel',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w500,
-                        ),
                   ),
                 ),
-              ),
-              SizedBox(width: 3.w),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close dialog
-                    Navigator.pop(context); // Go back to subtopic screen
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+
+              if (AdService.instance.isRewardedAdReady) SizedBox(height: 2.h),
+
+              // Main action buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close dialog only
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        side: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        '❌ Cancel',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
                     ),
                   ),
-                  child: Text(
-                    '🏠 Home',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                  SizedBox(width: 3.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context); // Close dialog
+                        Navigator.pop(context); // Go back to subtopic screen
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
+                      ),
+                      child: Text(
+                        '🏠 Home',
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  void _showRewardedAdForRetry() {
+    AdService.instance.showRewardedAd(
+      onUserEarnedReward: (reward) {
+        // User earned reward - allow retry of wrong answers
+        print('🎁 User earned reward: ${reward.amount} ${reward.type}');
+
+        Navigator.pop(context); // Close results dialog
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '🎉 Reward earned! You can now retry wrong answers.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+
+        // Implement retry logic here
+        _retryWrongAnswers();
+      },
+    );
+  }
+
+  void _retryWrongAnswers() {
+    // Reset quiz state for wrong answers only
+    final wrongQuestions = <int>[];
+    for (int i = 0; i < _quizData.length; i++) {
+      final state = _quizStateManager.getQuestionState(i);
+      if (state.hasSubmittedAnswer &&
+          state.selectedOptionIndex != _quizData[i].correctAnswer) {
+        wrongQuestions.add(i);
+      }
+    }
+
+    if (wrongQuestions.isNotEmpty) {
+      // Reset states for wrong answers
+      for (int index in wrongQuestions) {
+        _quizStateManager.resetQuestionState(index);
+      }
+
+      // Navigate to first wrong question
+      setState(() {
+        _currentQuestionIndex = wrongQuestions.first;
+      });
+
+      // Show helpful message
+      Future.delayed(Duration(milliseconds: 500), () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Now retry the ${wrongQuestions.length} questions you got wrong!',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      });
+    }
   }
 
   Widget _buildStatItem(String label, String value, Color color) {

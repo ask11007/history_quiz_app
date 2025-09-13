@@ -8,8 +8,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../core/app_export.dart';
 import '../../core/services/supabase_service.dart';
 import '../../core/services/connectivity_service.dart';
+import '../../core/services/ad_service.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/custom_icon_widget.dart';
+import '../../widgets/banner_ad_widget.dart';
 import './widgets/subject_card_widget.dart';
 import './widgets/user_greeting_widget.dart';
 
@@ -349,6 +351,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     SizedBox(height: 2.h),
 
+                    // Banner Ad
+                    BannerAdWidget(
+                      margin: EdgeInsets.symmetric(horizontal: 4.w),
+                    ),
+
+                    SizedBox(height: 2.h),
+
                     // Welcome message
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 4.w),
@@ -511,24 +520,38 @@ class _HomeScreenState extends State<HomeScreen> {
   void _navigateToQuiz(Map<String, dynamic> subject) async {
     HapticFeedback.lightImpact();
 
+    // Increment ad counter for frequency control
+    AdService.instance.incrementActionCounter();
+
+    // Try to show interstitial ad before navigation
+    final adShown = await AdService.instance.showInterstitialAd();
+    if (adShown) {
+      print('🎯 Interstitial ad shown before subject selection');
+      // Small delay after ad to improve UX
+      await Future.delayed(Duration(milliseconds: 500));
+    }
+
     // Navigate to sub-topic selection screen instead of directly to quiz
     print('Navigating to sub-topic selection with subject data:');
     print('  ID: ${subject["id"]}');
     print('  Name: ${subject["name"]}');
     print('  Original Tag: ${subject["originalTag"]}');
 
-    Navigator.pushNamed(
-      context,
-      '/sub-topic-screen',
-      arguments: {
-        'subjectId': subject["id"],
-        'subjectName': subject["name"],
-        'subjectTag': subject["originalTag"], // Pass the original database tag
-        'backgroundColor': subject["backgroundColor"],
-        'icon': subject["icon"],
-        'totalQuestions': subject["totalQuestions"],
-      },
-    );
+    if (mounted) {
+      Navigator.pushNamed(
+        context,
+        '/sub-topic-screen',
+        arguments: {
+          'subjectId': subject["id"],
+          'subjectName': subject["name"],
+          'subjectTag':
+              subject["originalTag"], // Pass the original database tag
+          'backgroundColor': subject["backgroundColor"],
+          'icon': subject["icon"],
+          'totalQuestions': subject["totalQuestions"],
+        },
+      );
+    }
   }
 
   Future<void> _refreshData() async {

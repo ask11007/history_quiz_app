@@ -10,6 +10,9 @@
     <!-- Gallery and Camera permissions for profile pictures -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+    
+    <!-- Google AdMob permissions -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
             android:label="Polity 5000+"
@@ -57,6 +60,11 @@
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2"/>
+        
+        <!-- Google AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
     </application>
     <queries>
         <intent>

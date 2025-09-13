@@ -77,6 +77,11 @@ class QuizStateManager {
     _questionStates.clear();
   }
 
+  // Reset specific question state
+  void resetQuestionState(int questionIndex) {
+    _questionStates.remove(questionIndex);
+  }
+
   // Get total answered questions count
   int getTotalAnsweredCount() {
     return _questionStates.values
