@@ -184,7 +184,7 @@ class AdService {
 
     try {
       await _interstitialAd!.show();
-      _lastInterstitialTime = DateTime.now();
+      // Don't update counter or time for forced ads - allows repeated display
       return true;
     } catch (e) {
       print('❌ Error showing forced interstitial ad: $e');
