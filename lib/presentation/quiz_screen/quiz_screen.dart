@@ -9,6 +9,7 @@ import '../../core/models/quiz_state_model.dart';
 import '../../core/services/supabase_service.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/services/ad_service.dart';
+import '../../widgets/banner_ad_widget.dart';
 import './widgets/explanation_widget.dart';
 import './widgets/option_card_widget.dart';
 import './widgets/question_card_widget.dart';
@@ -239,203 +240,254 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _finishQuiz() {
-    // Increment ad counter for frequency control
-    AdService.instance.incrementActionCounter();
-
-    // Calculate simple quiz summary
-    final summary = _quizStateManager.getQuizSummary(_quizData);
-
-    // Try to show interstitial ad before results
-    AdService.instance.showInterstitialAd().then((adShown) {
+    // Show forced interstitial ad for quiz completion
+    AdService.instance.showInterstitialAdForced().then((adShown) {
       if (adShown) {
-        print('🎆 Interstitial ad shown after quiz completion');
+        print('🎆 Forced interstitial ad shown after quiz completion');
       }
 
-      // Show results dialog (with slight delay if ad was shown)
+      // Show results screen (with slight delay if ad was shown)
       Future.delayed(
-        Duration(milliseconds: adShown ? 500 : 0),
-        () => _showQuizResultsDialog(summary),
+        Duration(milliseconds: adShown ? 1000 : 0),
+        () => _showQuizResultsScreen(),
       );
     });
   }
 
-  void _showQuizResultsDialog(Map<String, int> summary) {
-    // Show simple popup dialog
+  void _showQuizResultsScreen() {
+    // Calculate quiz summary
+    final summary = _quizStateManager.getQuizSummary(_quizData);
+
+    // Navigate to a full results screen instead of dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Quiz Completed!',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        content: Padding(
-          padding: EdgeInsets.symmetric(vertical: 2.h),
+      builder: (context) => Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              // Subject name
-              Text(
-                _subTopicName,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 3.h),
-
-              // Statistics in a compact grid
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem('Correct', '${summary['correct']}',
-                      const Color(0xFF02732A)),
-                  _buildStatItem(
-                      'Wrong', '${summary['wrong']}', const Color(0xFFC9463D)),
-                ],
-              ),
-              SizedBox(height: 2.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem('Attempted', '${summary['attempted']}',
-                      const Color(0xFF1976D2)),
-                  _buildStatItem('Unattempted', '${summary['unattempted']}',
-                      const Color(0xFFFF9800)),
-                ],
-              ),
-
-              // Rewarded ad option for quiz retry
-              if (AdService.instance.isRewardedAdReady) ...[
-                SizedBox(height: 3.h),
-                Container(
-                  padding: EdgeInsets.all(3.w),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primaryContainer
-                        .withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
-                    ),
-                  ),
+              // Results content
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(4.w),
                   child: Column(
                     children: [
-                      Icon(
-                        Icons.video_library,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 6.w,
+                      SizedBox(height: 4.h),
+
+                      // Completion Icon
+                      Container(
+                        width: 20.w,
+                        height: 20.w,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.quiz,
+                          color: Colors.white,
+                          size: 10.w,
+                        ),
                       ),
-                      SizedBox(height: 1.h),
+
+                      SizedBox(height: 3.h),
+
                       Text(
-                        'Watch ad to retry wrong answers',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        'Quiz Completed!',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.primary,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: 1.h),
+
+                      Text(
+                        _subTopicName,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
                               fontWeight: FontWeight.w500,
                             ),
                         textAlign: TextAlign.center,
                       ),
+
+                      SizedBox(height: 4.h),
+
+                      // Statistics Cards
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildResultCard('Correct', '${summary['correct']}',
+                              const Color(0xFF02732A), Icons.check_circle),
+                          _buildResultCard('Wrong', '${summary['wrong']}',
+                              const Color(0xFFC9463D), Icons.cancel),
+                        ],
+                      ),
+
+                      SizedBox(height: 3.h),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildResultCard(
+                              'Attempted',
+                              '${summary['attempted']}',
+                              const Color(0xFF1976D2),
+                              Icons.assignment_turned_in),
+                          _buildResultCard(
+                              'Skipped',
+                              '${summary['unattempted']}',
+                              const Color(0xFFFF9800),
+                              Icons.skip_next),
+                        ],
+                      ),
+
+                      SizedBox(height: 4.h),
+
+                      // Action Buttons
+                      if (AdService.instance.isRewardedAdReady) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () => _showRewardedAdForRetry(),
+                            icon: Icon(Icons.play_circle_fill,
+                                color: Colors.white),
+                            label: Text(
+                              'Watch Ad & Retry Wrong Answers',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              padding: EdgeInsets.symmetric(vertical: 2.h),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 2.h),
+                      ],
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context); // Close results
+                              },
+                              icon: Icon(Icons.quiz,
+                                  color: Theme.of(context).colorScheme.primary),
+                              label: Text(
+                                'Continue Quiz',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 2.h),
+                                side: BorderSide(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  width: 2,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 3.w),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.pop(context); // Close results
+                                Navigator.pop(
+                                    context); // Go back to subtopic screen
+                              },
+                              icon: Icon(Icons.home, color: Colors.white),
+                              label: Text(
+                                'Home',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                padding: EdgeInsets.symmetric(vertical: 2.h),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              ],
+              ),
+
+              // Banner Ad at bottom
+              Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+                child: BannerAdWidget(
+                  margin: EdgeInsets.all(2.w),
+                ),
+              ),
             ],
           ),
         ),
-        actions: [
-          Column(
-            children: [
-              // Rewarded ad button (if available)
-              if (AdService.instance.isRewardedAdReady)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _showRewardedAdForRetry(),
-                    icon: Icon(Icons.play_circle_fill, color: Colors.white),
-                    label: Text(
-                      'Watch Ad & Retry Wrong Answers',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
+      ),
+    );
+  }
+
+  Widget _buildResultCard(
+      String label, String value, Color color, IconData icon) {
+    return Container(
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 6.w),
+          SizedBox(height: 1.h),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
                 ),
-
-              if (AdService.instance.isRewardedAdReady) SizedBox(height: 2.h),
-
-              // Main action buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Close dialog only
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Text(
-                        '❌ Cancel',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 3.w),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Close dialog
-                        Navigator.pop(context); // Go back to subtopic screen
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        '🏠 Home',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          ),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
           ),
         ],
       ),

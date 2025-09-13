@@ -175,6 +175,23 @@ class AdService {
     }
   }
 
+  /// Show interstitial ad without frequency control (for quiz completion)
+  Future<bool> showInterstitialAdForced() async {
+    if (!_isInitialized || _interstitialAd == null) {
+      print('⚠️ Interstitial ad not ready');
+      return false;
+    }
+
+    try {
+      await _interstitialAd!.show();
+      _lastInterstitialTime = DateTime.now();
+      return true;
+    } catch (e) {
+      print('❌ Error showing forced interstitial ad: $e');
+      return false;
+    }
+  }
+
   bool _shouldShowInterstitial() {
     // Check frequency
     if (_interstitialAdCounter % _interstitialFrequency != 0) return false;

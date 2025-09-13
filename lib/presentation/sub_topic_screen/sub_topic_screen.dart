@@ -5,6 +5,7 @@ import 'package:sizer/sizer.dart';
 import '../../core/app_export.dart';
 import '../../core/services/supabase_service.dart';
 import '../../widgets/custom_icon_widget.dart';
+import '../../widgets/banner_ad_widget.dart';
 import '../home_screen/widgets/subject_card_widget.dart';
 
 class SubTopicScreen extends StatefulWidget {
@@ -353,6 +354,17 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
                             ],
                           ),
                         ),
+            ),
+
+            // Banner Ad at bottom
+            Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: SafeArea(
+                top: false,
+                child: BannerAdWidget(
+                  margin: EdgeInsets.all(2.w),
+                ),
+              ),
             ),
           ],
         ),

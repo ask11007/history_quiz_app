@@ -8,22 +8,28 @@ class BannerAdWidget extends StatefulWidget {
   final AdSize adSize;
   final EdgeInsets? margin;
   final Color? backgroundColor;
+  final bool isPersistent; // New flag for persistent display
 
   const BannerAdWidget({
     Key? key,
     this.adSize = AdSize.banner,
     this.margin,
     this.backgroundColor,
+    this.isPersistent = true, // Default to persistent
   }) : super(key: key);
 
   @override
   State<BannerAdWidget> createState() => _BannerAdWidgetState();
 }
 
-class _BannerAdWidgetState extends State<BannerAdWidget> {
+class _BannerAdWidgetState extends State<BannerAdWidget>
+    with AutomaticKeepAliveClientMixin {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
   bool _hasAdError = false;
+
+  @override
+  bool get wantKeepAlive => widget.isPersistent; // Keep alive if persistent
 
   @override
   void initState() {
@@ -79,6 +85,8 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+
     // Don't show anything if ad service is not initialized
     if (!AdService.instance.isInitialized) {
       return SizedBox.shrink();

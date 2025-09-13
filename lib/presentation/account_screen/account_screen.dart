@@ -566,6 +566,12 @@ class _AccountScreenState extends State<AccountScreen>
                   onSignOut: _handleSignOut,
                 ),
                 SizedBox(height: 2.h),
+
+                // Banner Ad at bottom
+                BannerAdWidget(
+                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                ),
+                SizedBox(height: 2.h),
               ],
             ),
           ),
