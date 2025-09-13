@@ -11,6 +11,7 @@ import '../../core/services/supabase_service.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../core/services/ad_service.dart';
 import '../../widgets/banner_ad_widget.dart';
+import '../../widgets/smart_ad_placement_widget.dart';
 import './widgets/explanation_widget.dart';
 import './widgets/option_card_widget.dart';
 import './widgets/question_card_widget.dart';

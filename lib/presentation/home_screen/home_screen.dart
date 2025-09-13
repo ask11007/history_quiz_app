@@ -12,6 +12,7 @@ import '../../core/services/ad_service.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/custom_icon_widget.dart';
 import '../../widgets/banner_ad_widget.dart';
+import '../../widgets/smart_ad_placement_widget.dart';
 import './widgets/subject_card_widget.dart';
 import './widgets/user_greeting_widget.dart';
 
@@ -351,9 +352,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     SizedBox(height: 2.h),
 
-                    // Banner Ad
-                    BannerAdWidget(
-                      margin: EdgeInsets.symmetric(horizontal: 4.w),
+                    // Smart Banner Ad with responsive sizing
+                    SmartAdPlacementWidget(
+                      placement: 'home',
                     ),
 
                     SizedBox(height: 2.h),

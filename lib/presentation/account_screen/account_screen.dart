@@ -9,6 +9,7 @@ import '../../providers/user_provider.dart';
 import '../../widgets/custom_image_widget.dart';
 import '../../widgets/custom_icon_widget.dart';
 import '../../widgets/banner_ad_widget.dart';
+import '../../widgets/smart_ad_placement_widget.dart';
 import './widgets/profile_header_widget.dart';
 import './widgets/settings_section_widget.dart';
 import './widgets/sign_out_button_widget.dart';
@@ -495,10 +496,8 @@ class _AccountScreenState extends State<AccountScreen>
                 ),
                 SizedBox(height: 2.h),
 
-                // Banner Ad
-                BannerAdWidget(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
-                ),
+                // Remove this duplicate banner ad - keeping only bottom one
+                // Smart placement will be used at bottom
 
                 SizedBox(height: 2.h),
                 SettingsSectionWidget(
@@ -567,9 +566,9 @@ class _AccountScreenState extends State<AccountScreen>
                 ),
                 SizedBox(height: 2.h),
 
-                // Banner Ad at bottom
-                BannerAdWidget(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
+                // Smart Banner Ad at bottom with better UX
+                SmartAdPlacementWidget(
+                  placement: 'account',
                 ),
                 SizedBox(height: 2.h),
               ],

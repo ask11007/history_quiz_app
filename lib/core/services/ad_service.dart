@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../../widgets/banner_ad_widget.dart';
 
 class AdService {
   static AdService? _instance;
@@ -79,8 +80,41 @@ class AdService {
     }
   }
 
-  /// Create a banner ad widget
+  /// Create a banner ad widget with responsive sizing
   Widget createBannerAd({
+    AdSize? adSize,
+    bool adaptiveSize = true,
+    double? maxWidth,
+    Function(Ad)? onAdLoaded,
+    Function(Ad, LoadAdError)? onAdFailedToLoad,
+  }) {
+    if (!_isInitialized) {
+      print('AdMob not initialized, showing empty container');
+      return SizedBox.shrink();
+    }
+
+    // Use BannerAdWidget for better responsive handling
+    return BannerAdWidget(
+      adSize: adSize,
+      adaptiveSize: adaptiveSize,
+      maxWidth: maxWidth,
+    );
+  }
+
+  /// Create a smart banner ad that adapts to screen size
+  Widget createSmartBanner({
+    EdgeInsets? margin,
+    double maxWidthPercent = 0.9,
+  }) {
+    return BannerAdWidget(
+      adaptiveSize: true,
+      margin: margin,
+      maxWidth: null, // Will be calculated based on screen
+    );
+  }
+
+  /// Create a banner ad widget (legacy method for backward compatibility)
+  Widget createLegacyBannerAd({
     AdSize adSize = AdSize.banner,
     Function(Ad)? onAdLoaded,
     Function(Ad, LoadAdError)? onAdFailedToLoad,
@@ -273,6 +307,33 @@ class AdService {
   /// Increment action counter for interstitial frequency
   void incrementActionCounter() {
     _interstitialAdCounter++;
+  }
+
+  /// Reset interstitial frequency counter (useful for testing)
+  void resetInterstitialCounter() {
+    _interstitialAdCounter = 0;
+    _lastInterstitialTime = null;
+  }
+
+  /// Get ad analytics data
+  Map<String, dynamic> getAdAnalytics() {
+    return {
+      'interstitial_counter': _interstitialAdCounter,
+      'last_interstitial_time': _lastInterstitialTime?.toIso8601String(),
+      'interstitial_ready': _interstitialAd != null,
+      'rewarded_ready': _rewardedAd != null,
+      'initialization_status': _isInitialized,
+    };
+  }
+
+  /// Get current ad status
+  Map<String, bool> getAdStatus() {
+    return {
+      'admob_initialized': _isInitialized,
+      'interstitial_loaded': _interstitialAd != null,
+      'rewarded_loaded': _rewardedAd != null,
+      'can_show_interstitial': _shouldShowInterstitial(),
+    };
   }
 
   /// Dispose resources

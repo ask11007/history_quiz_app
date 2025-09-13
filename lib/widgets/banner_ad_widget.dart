@@ -5,17 +5,21 @@ import 'package:sizer/sizer.dart';
 import '../core/services/ad_service.dart';
 
 class BannerAdWidget extends StatefulWidget {
-  final AdSize adSize;
+  final AdSize? adSize; // Made nullable for auto-sizing
   final EdgeInsets? margin;
   final Color? backgroundColor;
-  final bool isPersistent; // New flag for persistent display
+  final bool isPersistent;
+  final bool adaptiveSize; // New flag for adaptive sizing
+  final double? maxWidth; // Maximum width constraint
 
   const BannerAdWidget({
     Key? key,
-    this.adSize = AdSize.banner,
+    this.adSize,
     this.margin,
     this.backgroundColor,
-    this.isPersistent = true, // Default to persistent
+    this.isPersistent = true,
+    this.adaptiveSize = true, // Enable adaptive sizing by default
+    this.maxWidth,
   }) : super(key: key);
 
   @override
@@ -43,9 +47,12 @@ class _BannerAdWidgetState extends State<BannerAdWidget>
       return;
     }
 
+    // Determine optimal ad size based on screen dimensions
+    final AdSize effectiveAdSize = _getOptimalAdSize();
+
     _bannerAd = BannerAd(
       adUnitId: AdService.instance.bannerAdUnitId,
-      size: widget.adSize,
+      size: effectiveAdSize,
       request: AdRequest(),
       listener: BannerAdListener(
         onAdLoaded: (ad) {
@@ -77,6 +84,43 @@ class _BannerAdWidgetState extends State<BannerAdWidget>
     _bannerAd!.load();
   }
 
+  /// Determines the optimal ad size based on screen dimensions and user preferences
+  AdSize _getOptimalAdSize() {
+    if (!widget.adaptiveSize && widget.adSize != null) {
+      return widget.adSize!;
+    }
+
+    // Get screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    final maxWidth = widget.maxWidth ?? screenWidth * 0.9;
+
+    // Choose appropriate ad size based on available width
+    if (maxWidth >= 728) {
+      // Large screens - use leaderboard
+      return AdSize.leaderboard;
+    } else if (maxWidth >= 468) {
+      // Medium screens - use banner
+      return AdSize.banner;
+    } else if (maxWidth >= 320) {
+      // Small screens - use adaptive banner
+      try {
+        final adaptiveSize = AdSize.getAnchoredAdaptiveBannerAdSize(
+          Orientation.portrait,
+          maxWidth.toInt(),
+        );
+        if (adaptiveSize != null && adaptiveSize is AdSize) {
+          return adaptiveSize as AdSize;
+        }
+      } catch (e) {
+        print('Error getting adaptive banner size: $e');
+      }
+      return AdSize.banner;
+    } else {
+      // Very small screens - use compact banner
+      return AdSize.banner;
+    }
+  }
+
   @override
   void dispose() {
     _bannerAd?.dispose();
@@ -94,8 +138,10 @@ class _BannerAdWidgetState extends State<BannerAdWidget>
 
     // Show loading state while ad is loading
     if (!_isAdLoaded && !_hasAdError) {
+      // Use default height for loading state when adSize is null
+      final loadingHeight = widget.adSize?.height.toDouble() ?? 50.0;
       return Container(
-        height: widget.adSize.height.toDouble(),
+        height: loadingHeight,
         margin: widget.margin,
         decoration: BoxDecoration(
           color: widget.backgroundColor ??
@@ -137,8 +183,9 @@ class _BannerAdWidgetState extends State<BannerAdWidget>
     }
 
     // Show the actual ad
+    final adSize = _bannerAd?.size ?? AdSize.banner;
     return Container(
-      height: widget.adSize.height.toDouble(),
+      height: adSize.height.toDouble(),
       margin: widget.margin,
       decoration: BoxDecoration(
         color: widget.backgroundColor,
