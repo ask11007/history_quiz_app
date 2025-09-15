@@ -8,6 +8,7 @@ class QuizHeaderWidget extends StatelessWidget {
   final int currentQuestion;
   final int totalQuestions;
   final VoidCallback? onBackPressed;
+  final VoidCallback? onReportPressed;
 
   const QuizHeaderWidget({
     Key? key,
@@ -15,6 +16,7 @@ class QuizHeaderWidget extends StatelessWidget {
     required this.currentQuestion,
     required this.totalQuestions,
     this.onBackPressed,
+    this.onReportPressed,
   }) : super(key: key);
 
   @override
@@ -65,6 +67,27 @@ class QuizHeaderWidget extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                   overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(width: 4.w),
+              GestureDetector(
+                onTap: onReportPressed,
+                child: Container(
+                  width: 10.w,
+                  height: 10.w,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.error,
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.flag_outlined,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 5.w,
+                  ),
                 ),
               ),
             ],
