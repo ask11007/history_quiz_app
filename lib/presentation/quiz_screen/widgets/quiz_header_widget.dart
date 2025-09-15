@@ -88,10 +88,14 @@ class QuizHeaderWidget extends StatelessWidget {
                     ),
                   ),
                   child: Center(
-                    child: CustomIconWidget(
-                      iconName: 'report_problem',
-                      color: Theme.of(context).colorScheme.error,
-                      size: 18,
+                    child: Text(
+                      '!',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        height: 1.0,
+                      ),
                     ),
                   ),
                 ),
