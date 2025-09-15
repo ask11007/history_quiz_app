@@ -361,7 +361,7 @@ class _QuizScreenState extends State<QuizScreen> {
           title: Row(
             children: [
               Icon(
-                Icons.flag_outlined,
+                Icons.report_problem_outlined,
                 color: Theme.of(context).colorScheme.error,
                 size: 6.w,
               ),
