@@ -79,20 +79,18 @@ class QuizHeaderWidget extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .errorContainer
-                        .withOpacity(0.2),
+                        .withOpacity(0.4),
                     shape: BoxShape.circle,
                     border: Border.all(
                       color:
-                          Theme.of(context).colorScheme.error.withOpacity(0.5),
-                      width: 1.5,
+                          Theme.of(context).colorScheme.error.withOpacity(0.8),
+                      width: 2.0,
                     ),
                   ),
-                  child: Center(
-                    child: Icon(
-                      Icons.report_problem,
-                      color: Theme.of(context).colorScheme.error,
-                      size: 18,
-                    ),
+                  child: Icon(
+                    Icons.report_problem,
+                    color: Theme.of(context).colorScheme.error,
+                    size: 22,
                   ),
                 ),
               ),
