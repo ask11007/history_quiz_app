@@ -89,7 +89,7 @@ class QuizHeaderWidget extends StatelessWidget {
                   ),
                   child: Center(
                     child: Icon(
-                      Icons.flag,
+                      Icons.report_problem,
                       color: Theme.of(context).colorScheme.error,
                       size: 18,
                     ),
