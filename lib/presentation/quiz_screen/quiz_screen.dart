@@ -361,7 +361,7 @@ class _QuizScreenState extends State<QuizScreen> {
           title: Row(
             children: [
               Icon(
-                Icons.flag_outlined,
+                Icons.flag,
                 color: Theme.of(context).colorScheme.error,
                 size: 6.w,
               ),
@@ -417,7 +417,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
+                backgroundColor: const Color(0xFFC9463D),
                 foregroundColor: Colors.white,
                 elevation: 3,
                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
