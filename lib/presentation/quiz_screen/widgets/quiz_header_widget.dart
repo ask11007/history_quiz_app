@@ -73,29 +73,20 @@ class QuizHeaderWidget extends StatelessWidget {
               GestureDetector(
                 onTap: onReportPressed,
                 child: Container(
-                  width: 10.w,
-                  height: 10.w,
+                  padding: EdgeInsets.all(1.5.w),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .errorContainer
-                        .withOpacity(0.1),
-                    shape: BoxShape.circle,
+                    color: Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color:
-                          Theme.of(context).colorScheme.error.withOpacity(0.3),
-                      width: 2.0,
+                      color: Colors.red,
+                      width: 2,
                     ),
                   ),
-                  child: Center(
-                    child: Text(
-                      '!',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        height: 1.0,
-                      ),
+                  child: Text(
+                    '⚠️',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.red,
                     ),
                   ),
                 ),

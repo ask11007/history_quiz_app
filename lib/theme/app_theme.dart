@@ -18,11 +18,11 @@ class AppTheme {
       Color(0xFF16A34A); // Clear green for correct answers
   static const Color successDark = Color(0xFF22C55E);
   static const Color errorLight =
-      Color(0xDC2626); // Distinct red for incorrect feedback
-  static const Color errorDark = Color(0xEF4444);
+      Color(0xFFDC2626); // Distinct red for incorrect feedback
+  static const Color errorDark = Color(0xFFEF4444);
   static const Color warningLight =
-      Color(0xF59E0B); // Amber for important notifications
-  static const Color warningDark = Color(0xFBBF24);
+      Color(0xFFF59E0B); // Amber for important notifications
+  static const Color warningDark = Color(0xFFFBBF24);
 
   // Accent colors
   static const Color accentLight =
