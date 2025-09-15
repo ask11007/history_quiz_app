@@ -360,10 +360,13 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
           title: Row(
             children: [
-              Icon(
-                Icons.report_problem,
-                color: Theme.of(context).colorScheme.error,
-                size: 6.w,
+              Text(
+                '!',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(width: 3.w),
               Flexible(

@@ -87,10 +87,14 @@ class QuizHeaderWidget extends StatelessWidget {
                       width: 2.0,
                     ),
                   ),
-                  child: Icon(
-                    Icons.report_problem,
-                    color: Theme.of(context).colorScheme.error,
-                    size: 22,
+                  child: Text(
+                    '!',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
