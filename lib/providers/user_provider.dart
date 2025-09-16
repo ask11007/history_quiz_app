@@ -18,8 +18,8 @@ import 'dart:math';
 
 class UserProvider extends ChangeNotifier {
   // Default cat avatar URL
-  static const String _defaultCatAvatar =
-      'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=400&h=400&fit=crop&crop=face';
+  static const String _defaultCatAvatar = 
+      'https://plus.unsplash.com/premium_photo-1669839137069-4166d6ea11f4?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDg1fDZzTVZqVExTa2VRfHxlbnwwfHx8fHw%3D';
 
   Map<String, dynamic> _userData = {
     "id": null,
