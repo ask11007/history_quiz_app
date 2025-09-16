@@ -18,13 +18,13 @@ import 'dart:math';
 
 class UserProvider extends ChangeNotifier {
   // Default cat avatar URL
-  static const String _defaultCatAvatar = 
+  static const String _defaultCatAvatar =
       'https://plus.unsplash.com/premium_photo-1669839137069-4166d6ea11f4?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDg1fDZzTVZqVExTa2VRfHxlbnwwfHx8fHw%3D';
 
   Map<String, dynamic> _userData = {
     "id": null,
-    "name": "Guest User",
-    "email": "guest@example.com",
+    "name": "User",
+    "email": "user@example.com",
     "avatar": _defaultCatAvatar,
     "totalQuizTime": "0h 0m",
     "achievementBadges": 0,
@@ -58,13 +58,10 @@ class UserProvider extends ChangeNotifier {
   bool get needsProfileSetup {
     if (!_isAuthenticated) return false;
 
-    // Guest users don't need profile setup
-    if (_userData["id"]?.toString().startsWith("guest_") == true) return false;
-
     // Only Supabase users need profile setup
     if (_currentUser == null) return false;
 
-    return _userData["name"] == "Guest User" || _userData["name"] == "User";
+    return _userData["name"] == "User";
   }
 
   // Initialize authentication state
@@ -205,7 +202,7 @@ class UserProvider extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
-      // Only sign out from Supabase if it's not a guest user
+      // Only sign out from Supabase
       if (_currentUser != null) {
         await SupabaseService.client.auth.signOut();
       }
@@ -217,49 +214,6 @@ class UserProvider extends ChangeNotifier {
       print('✅ Sign out completed successfully');
     } catch (e) {
       print('Sign out error: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  // Continue as guest - for testing purposes
-  Future<bool> continueAsGuest() async {
-    try {
-      _isLoading = true;
-      notifyListeners();
-
-      print('Setting up guest user session...');
-
-      // Set guest user data
-      _userData = {
-        "id": "guest_${DateTime.now().millisecondsSinceEpoch}",
-        "name": "Guest User",
-        "email": "guest@example.com",
-        "avatar": _defaultCatAvatar,
-        "totalQuizTime": "0h 0m",
-        "achievementBadges": 0,
-        "joinedDate": DateTime.now().toIso8601String(),
-        "lastActive": DateTime.now().toIso8601String(),
-        "preferences": {
-          "darkMode": false,
-          "notifications": true,
-          "language": "English"
-        }
-      };
-
-      // Set authentication state for guest (for UI consistency)
-      _isAuthenticated =
-          true; // Guest is considered "authenticated" for UI purposes
-      _currentUser = null; // But no actual Supabase user
-
-      await _saveGuestData();
-
-      print('✅ Guest session established successfully');
-      return true;
-    } catch (e) {
-      print('❌ Guest login error: $e');
-      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -382,25 +336,6 @@ class UserProvider extends ChangeNotifier {
           "language": "English"
         }
       };
-    }
-  }
-
-  // Save guest data to SharedPreferences
-  Future<void> _saveGuestData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_name', _userData['name']);
-      await prefs.setString('user_email', _userData['email']);
-      await prefs.setString('user_avatar', _userData['avatar']);
-
-      // Save authentication state
-      await prefs.setBool('is_authenticated', true);
-      await prefs.setString('user_id', _userData['id'] ?? '');
-      await prefs.setString('auth_type', 'guest');
-
-      print('Guest data saved to local storage');
-    } catch (e) {
-      print('Error saving guest data: $e');
     }
   }
 
@@ -681,10 +616,6 @@ class UserProvider extends ChangeNotifier {
           _isAuthenticated = true;
           print('✅ Restored Google Direct authentication state');
           print('User data loaded from local storage: $parsedData');
-        } else if (authType == 'guest') {
-          _isAuthenticated = true;
-          print('✅ Restored Guest authentication state');
-          print('Guest data loaded from local storage: $parsedData');
         } else {
           print('Supabase auth detected - will validate with Supabase');
         }
@@ -715,8 +646,6 @@ class UserProvider extends ChangeNotifier {
         authType = 'supabase_oauth';
       } else if (_userData['id']?.toString().startsWith('local_') == true) {
         authType = 'direct_storage_offline';
-      } else if (_userData['id']?.toString().startsWith('guest_') == true) {
-        authType = 'guest';
       } else if (_userData['id']?.toString().contains('-') == true &&
           _userData['id']?.toString().length == 36) {
         // UUID format indicates database storage
@@ -1481,11 +1410,11 @@ For support: support@quizmaster.app
       await prefs.remove('user_id');
       await prefs.remove('auth_type');
 
-      // Reset to guest user data
+      // Reset to default user data
       _userData = {
         "id": null,
-        "name": "Guest User",
-        "email": "guest@example.com",
+        "name": "User",
+        "email": "user@example.com",
         "avatar": _defaultCatAvatar,
         "totalQuizTime": "0h 0m",
         "achievementBadges": 0,

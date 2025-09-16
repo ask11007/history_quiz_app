@@ -84,53 +84,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     }
   }
 
-  Future<void> _continueAsGuest() async {
-    setState(() => _isLoading = true);
-
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-    try {
-      print('Starting guest authentication');
-
-      final success = await userProvider.continueAsGuest();
-
-      if (success && mounted) {
-        Fluttertoast.showToast(
-          msg: "Logged in as Guest (Testing Mode)",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.orange,
-          textColor: Colors.white,
-          timeInSecForIosWeb: 1,
-          fontSize: 16.0,
-        );
-
-        // AuthWrapper will handle navigation automatically
-        print(
-            '✅ Guest authentication successful - AuthWrapper will handle navigation');
-      } else {
-        throw Exception('Guest authentication failed');
-      }
-    } catch (e) {
-      print('Guest login error: $e');
-      if (mounted) {
-        Fluttertoast.showToast(
-          msg: "Failed to continue as guest: ${e.toString()}",
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          timeInSecForIosWeb: 1,
-          fontSize: 16.0,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
   @override
   void dispose() {
     _fadeController.dispose();
@@ -274,67 +227,6 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
                       elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: 3.h),
-
-                // Divider with OR text
-                Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4.w),
-                      child: Text(
-                        'OR',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Divider(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                  ],
-                ),
-
-                SizedBox(height: 3.h),
-
-                // Guest Access Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 6.h,
-                  child: OutlinedButton.icon(
-                    onPressed: _isLoading ? null : _continueAsGuest,
-                    icon: Icon(
-                      Icons.person_outline,
-                      size: 5.w,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    label: Text(
-                      'Continue as Guest',
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),

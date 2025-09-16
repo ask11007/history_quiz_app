@@ -52,7 +52,7 @@ history_quiz_app/
 
 ## 🚀 Features
 
-- **User Authentication**: Google Sign-In and Guest access
+- **User Authentication**: Google Sign-In with Supabase
 - **Interactive Quizzes**: History-focused questions with multiple choice answers
 - **User Profiles**: Customizable profiles with profile pictures
 - **Progress Tracking**: Track quiz performance and statistics
