@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/question_model.dart';
+import '../models/question_report_model.dart';
 import '../config/supabase_config.dart';
 import 'package:uuid/uuid.dart';
 
@@ -532,6 +533,73 @@ class SupabaseService {
       return true;
     } catch (e) {
       print('Error deleting question: $e');
+      return false;
+    }
+  }
+
+  // === QUESTION REPORT METHODS ===
+
+  /// Submit a question report to the database
+  static Future<bool> submitQuestionReport(QuestionReport report) async {
+    try {
+      print('Submitting question report: ${report.toJson()}');
+
+      final response = await _client
+          .from('question_reports')
+          .insert(report.toJson())
+          .select()
+          .single();
+
+      print('Question report submitted successfully: $response');
+      return true;
+    } catch (e) {
+      print('Error submitting question report: $e');
+      return false;
+    }
+  }
+
+  /// Get all reports for a specific question
+  static Future<List<QuestionReport>> getQuestionReports(int questionId) async {
+    try {
+      final response = await _client
+          .from('question_reports')
+          .select()
+          .eq('question_id', questionId)
+          .order('reported_at', ascending: false);
+
+      return (response as List)
+          .map((json) => QuestionReport.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching question reports: $e');
+      return [];
+    }
+  }
+
+  /// Get all reports (for admin purposes)
+  static Future<List<QuestionReport>> getAllReports() async {
+    try {
+      final response = await _client
+          .from('question_reports')
+          .select()
+          .order('reported_at', ascending: false);
+
+      return (response as List)
+          .map((json) => QuestionReport.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Error fetching all reports: $e');
+      return [];
+    }
+  }
+
+  /// Delete a report (for admin purposes)
+  static Future<bool> deleteReport(int reportId) async {
+    try {
+      await _client.from('question_reports').delete().eq('id', reportId);
+      return true;
+    } catch (e) {
+      print('Error deleting report: $e');
       return false;
     }
   }

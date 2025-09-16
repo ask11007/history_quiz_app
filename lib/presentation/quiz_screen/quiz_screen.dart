@@ -13,6 +13,7 @@ import './widgets/option_card_widget.dart';
 import './widgets/question_card_widget.dart';
 import './widgets/quiz_header_widget.dart';
 import './widgets/quiz_progress_indicator_widget.dart';
+import './widgets/question_report_widget.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({Key? key}) : super(key: key);
@@ -353,90 +354,12 @@ class _QuizScreenState extends State<QuizScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              Text(
-                '!',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(width: 3.w),
-              Flexible(
-                child: Text(
-                  'Report Question',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Do you want to report this question for review? This will help us improve the quality of our content.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                elevation: 2,
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outline,
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                'Cancel',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ),
-            SizedBox(width: 2.w),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // TODO: Implement actual report functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Question reported successfully'),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFC9463D),
-                foregroundColor: Colors.white,
-                elevation: 3,
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                'Report',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ),
-          ],
+        return QuestionReportWidget(
+          question: _currentQuestion,
+          onReportSubmitted: () {
+            // Optional: Add any additional logic after report submission
+            print('Question ${_currentQuestion.id} reported successfully');
+          },
         );
       },
     );
