@@ -35,6 +35,8 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
+      print('📥 SubTopicScreen received navigation arguments: $args');
+
       setState(() {
         _subjectName = args['subjectName'] ?? '';
         _subjectTag = args['subjectTag'] ?? '';
@@ -42,7 +44,15 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
         _subjectIcon = args['icon'] ?? 'quiz';
       });
 
+      print('📊 SubTopicScreen extracted data:');
+      print('   subjectName: "$_subjectName"');
+      print('   subjectTag: "$_subjectTag"');
+      print('   subjectColor: $_subjectColor');
+      print('   subjectIcon: "$_subjectIcon"');
+
       _fetchSubTopicsFromDatabase();
+    } else {
+      print('❌ SubTopicScreen: No navigation arguments found');
     }
   }
 
@@ -79,6 +89,12 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
             "totalQuestions": 0, // Will be updated when questions are fetched
           };
         }).toList();
+
+        print('📊 Created sub-topic data with parent tag: "$_subjectTag"');
+        for (var subTopic in subTopics) {
+          print(
+              '   SubTopic: ${subTopic["name"]} -> tag: "${subTopic["tag"]}", subTag: "${subTopic["subTag"]}"');
+        }
 
         setState(() {
           _subTopicsData = subTopics;
@@ -145,13 +161,20 @@ class _SubTopicScreenState extends State<SubTopicScreen> {
     print('  Tag: ${subTopic["tag"]}');
     print('  Sub Tag: ${subTopic["subTag"]}');
 
+    // Ensure we have a valid tag to pass
+    final tagToPass = subTopic["tag"] ?? _subjectTag ?? _subjectName ?? '';
+
+    if (tagToPass.isEmpty) {
+      print('❌ WARNING: No valid tag found for quiz navigation!');
+    }
+
     Navigator.pushNamed(
       context,
       '/quiz-screen',
       arguments: {
         'subjectId': subTopic["id"],
         'subjectName': _subjectName,
-        'subjectTag': subTopic["tag"], // Main subject tag
+        'subjectTag': tagToPass, // Use the validated tag
         'subjectSubTag': subTopic["subTag"], // Sub-topic tag
         'subTopicName': subTopic["name"], // Pass only sub-topic name for header
         'totalQuestions': subTopic["totalQuestions"],

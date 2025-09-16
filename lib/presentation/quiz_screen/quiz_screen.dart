@@ -24,7 +24,7 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   int _currentQuestionIndex = 0;
-  bool _isLoading = true; // Start with loading state to prevent flash
+  bool _isLoading = false; // Start with false, check connectivity first
   bool _hasDataLoadError = false;
   String _errorMessage = '';
 
@@ -55,96 +55,124 @@ class _QuizScreenState extends State<QuizScreen> {
     super.didChangeDependencies();
     // Load quiz data here after the widget is fully initialized
     if (!_hasLoadedData) {
-      // Load immediately without delay
-      if (mounted) {
-        _loadQuizData();
-        _hasLoadedData = true;
-      }
+      // Ensure context and arguments are available before loading
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _initializeQuizData();
+          _hasLoadedData = true;
+        }
+      });
     }
   }
 
-  Future<void> _loadQuizData() async {
-    if (_isLoading) return; // Prevent multiple simultaneous loads
+  Future<void> _initializeQuizData() async {
+    // First check connectivity without showing loading until we know we need to fetch data
+    final hasInternet = await _connectivityService.hasInternetConnection();
 
+    if (!hasInternet) {
+      print('❌ No internet connection detected during initialization');
+      setState(() {
+        _hasDataLoadError = true;
+        _errorMessage = 'No internet connection available';
+      });
+      return;
+    }
+
+    // Only show loading state when we're actually going to fetch data
     setState(() {
       _isLoading = true;
     });
 
+    await _loadQuizData();
+  }
+
+  Future<void> _loadQuizData() async {
     try {
       // Get subject information from navigation arguments
       final args =
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
       if (args != null) {
+        print('📥 Received navigation arguments: $args');
+
         _subjectName = args['subjectName'] ?? '';
+
+        // Multiple fallback strategies for subjectTag
         _subjectTag = args['subjectTag'] ??
+            args['originalTag'] ??
+            args['tag'] ??
             args['subjectName'] ??
-            ''; // Use subjectTag if available, fallback to subjectName
+            '';
 
         // Get sub-topic information
         final subjectSubTag = args['subjectSubTag'] as String?;
-        _subTopicName =
-            args['subTopicName'] ?? ''; // Only use sub-topic name, no fallback
+        _subTopicName = args['subTopicName'] ?? '';
 
-        print(
-            'Loading quiz data for subject: $_subjectName, tag: $_subjectTag, sub_tag: $subjectSubTag');
+        print('📊 Extracted data:');
+        print('   subjectName: "$_subjectName"');
+        print('   subjectTag: "$_subjectTag"');
+        print('   subjectSubTag: "$subjectSubTag"');
+        print('   subTopicName: "$_subTopicName"');
 
-        // Check connectivity with real internet test before attempting to load questions
-        final hasInternet = await _connectivityService.hasInternetConnection();
-        if (!hasInternet) {
-          print('❌ No internet connection detected for quiz loading');
-          setState(() {
-            _quizData = [];
-            _isLoading = false;
-            _hasDataLoadError = true;
-            _errorMessage = 'No internet connection available';
-          });
-          return;
-        }
+        // Validate that we have essential data
+        if (_subjectTag.isEmpty) {
+          print(
+              '❌ CRITICAL: subjectTag is empty! Trying alternative approaches...');
 
-        print('✅ Internet connection confirmed - loading quiz questions...');
-
-        if (_subjectTag.isNotEmpty) {
-          List<Question> questions;
-
-          if (subjectSubTag != null && subjectSubTag.isNotEmpty) {
-            // Fetch questions by both tag and sub_tag
-            questions = await SupabaseService.getQuestionsByTagAndSubTag(
-                _subjectTag, subjectSubTag);
+          // Try to use subjectName as tag if available
+          if (_subjectName.isNotEmpty) {
+            _subjectTag = _subjectName;
+            print('🔄 Using subjectName as fallback tag: "$_subjectTag"');
           } else {
-            // Fetch questions by tag only (original behavior)
-            questions = await SupabaseService.getQuestionsByTag(_subjectTag);
-          }
-
-          if (questions.isNotEmpty) {
-            setState(() {
-              _quizData = questions;
-              _isLoading = false;
-              _hasDataLoadError = false;
-              _errorMessage = '';
-            });
-            print(
-                'Successfully loaded ${questions.length} questions from Supabase for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
-          } else {
-            print(
-                'No questions found for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
+            print('❌ No usable tag found, showing error');
             setState(() {
               _quizData = [];
               _isLoading = false;
               _hasDataLoadError = true;
-              _errorMessage = 'No questions available for this topic';
+              _errorMessage = 'Invalid topic selected - no tag information';
             });
+            return;
           }
+        }
+
+        print(
+            'Loading quiz data for subject: $_subjectName, tag: $_subjectTag, sub_tag: $subjectSubTag');
+        print('✅ Internet connection confirmed - loading quiz questions...');
+
+        List<Question> questions;
+
+        if (subjectSubTag != null && subjectSubTag.isNotEmpty) {
+          // Fetch questions by both tag and sub_tag
+          print('🔍 Fetching questions by tag AND sub_tag...');
+          questions = await SupabaseService.getQuestionsByTagAndSubTag(
+              _subjectTag, subjectSubTag);
         } else {
-          print('Subject tag is empty');
+          // Fetch questions by tag only (original behavior)
+          print('🔍 Fetching questions by tag only...');
+          questions = await SupabaseService.getQuestionsByTag(_subjectTag);
+        }
+
+        if (questions.isNotEmpty) {
+          setState(() {
+            _quizData = questions;
+            _isLoading = false;
+            _hasDataLoadError = false;
+            _errorMessage = '';
+          });
+          print(
+              '✅ Successfully loaded ${questions.length} questions from Supabase for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
+        } else {
+          print(
+              '⚠️ No questions found for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
           setState(() {
             _quizData = [];
             _isLoading = false;
             _hasDataLoadError = true;
-            _errorMessage = 'Invalid topic selected';
+            _errorMessage =
+                'No questions available for this topic. The topic may not be set up yet.';
           });
         }
       } else {
-        print('No navigation arguments found');
+        print('❌ No navigation arguments found');
         setState(() {
           _quizData = [];
           _isLoading = false;
@@ -153,7 +181,7 @@ class _QuizScreenState extends State<QuizScreen> {
         });
       }
     } catch (e) {
-      print('Error loading quiz data: $e');
+      print('❌ Error loading quiz data: $e');
       setState(() {
         _quizData = [];
         _isLoading = false;
@@ -551,6 +579,18 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                 textAlign: TextAlign.center,
               ),
+              if (_subjectName.isNotEmpty || _subTopicName.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(top: 1.h),
+                  child: Text(
+                    'Topic: $_subjectName\nSub-topic: $_subTopicName',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontStyle: FontStyle.italic,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               SizedBox(height: 3.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
