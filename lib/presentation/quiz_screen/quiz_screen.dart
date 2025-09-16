@@ -24,7 +24,7 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   int _currentQuestionIndex = 0;
-  bool _isLoading = false;
+  bool _isLoading = true; // Start with loading state to prevent flash
   bool _hasDataLoadError = false;
   String _errorMessage = '';
 
@@ -55,13 +55,11 @@ class _QuizScreenState extends State<QuizScreen> {
     super.didChangeDependencies();
     // Load quiz data here after the widget is fully initialized
     if (!_hasLoadedData) {
-      // Add a small delay to ensure navigation arguments are available
-      Future.delayed(Duration(milliseconds: 100), () {
-        if (mounted) {
-          _loadQuizData();
-          _hasLoadedData = true;
-        }
-      });
+      // Load immediately without delay
+      if (mounted) {
+        _loadQuizData();
+        _hasLoadedData = true;
+      }
     }
   }
 
@@ -523,7 +521,7 @@ class _QuizScreenState extends State<QuizScreen> {
       );
     }
 
-    if (_quizData.isEmpty && !_isLoading) {
+    if (_quizData.isEmpty && !_isLoading && _hasDataLoadError) {
       return Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(
