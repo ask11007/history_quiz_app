@@ -8,12 +8,14 @@ import '../../core/models/question_model.dart';
 import '../../core/models/quiz_state_model.dart';
 import '../../core/services/supabase_service.dart';
 import '../../core/services/connectivity_service.dart';
+import '../../core/services/ad_service.dart';
 import './widgets/explanation_widget.dart';
 import './widgets/option_card_widget.dart';
 import './widgets/question_card_widget.dart';
 import './widgets/quiz_header_widget.dart';
 import './widgets/quiz_progress_indicator_widget.dart';
 import './widgets/question_report_widget.dart';
+import '../../widgets/banner_ad_widget.dart';
 
 class QuizScreen extends StatefulWidget {
   const QuizScreen({Key? key}) : super(key: key);
@@ -265,6 +267,22 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _finishQuiz() {
+    // Show interstitial ad before results
+    AdService.instance.forceShowInterstitialAd().then((adShown) {
+      if (adShown) {
+        print('✅ Interstitial ad shown before quiz results');
+        // Add small delay to ensure ad is properly closed
+        Future.delayed(Duration(milliseconds: 500), () {
+          _showQuizResults();
+        });
+      } else {
+        print('⚠️ Interstitial ad not shown, showing results immediately');
+        _showQuizResults();
+      }
+    });
+  }
+
+  void _showQuizResults() {
     // Calculate simple quiz summary
     final summary = _quizStateManager.getQuizSummary(_quizData);
 
@@ -315,6 +333,13 @@ class _QuizScreenState extends State<QuizScreen> {
                   _buildStatItem('Unattempted', '${summary['unattempted']}',
                       const Color(0xFFFF9800)),
                 ],
+              ),
+
+              // Custom Rectangle Ad below results
+              SizedBox(height: 2.h),
+              MediumRectangleAdWidget(
+                enableAutoRefresh: true,
+                margin: EdgeInsets.symmetric(horizontal: 2.w),
               ),
             ],
           ),

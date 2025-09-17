@@ -10,12 +10,17 @@ import '../theme/theme_provider.dart';
 import '../providers/user_provider.dart';
 import '../core/services/supabase_service.dart';
 import '../core/services/connectivity_service.dart';
+import '../core/services/ad_service.dart';
 import '../presentation/auth/auth_screen.dart';
 import '../presentation/auth/profile_setup_screen.dart';
 import '../presentation/main_navigation_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize AdMob first for Indian market
+  print('🚀 Initializing AdMob for Indian market...');
+  await AdService.instance.initialize();
 
   // Start Supabase initialization in parallel (don't wait for it)
   SupabaseService.initialize().catchError((e) {

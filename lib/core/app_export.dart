@@ -5,3 +5,4 @@ export '../widgets/custom_image_widget.dart';
 export '../theme/app_theme.dart';
 export './models/quiz_state_model.dart';
 export './models/question_report_model.dart';
+export './services/ad_service.dart';

@@ -8,6 +8,7 @@ import '../../theme/theme_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/custom_image_widget.dart';
 import '../../widgets/custom_icon_widget.dart';
+import '../../widgets/banner_ad_widget.dart';
 import './widgets/profile_header_widget.dart';
 import './widgets/settings_section_widget.dart';
 import './widgets/sign_out_button_widget.dart';
@@ -492,6 +493,13 @@ class _AccountScreenState extends State<AccountScreen>
                     );
                   },
                 ),
+
+                // First Banner Ad - Below Profile Header
+                BannerAdWidget(
+                  refreshKey: 'account_screen_top',
+                  enableAutoRefresh: true,
+                  margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                ),
                 SizedBox(height: 2.h),
                 SettingsSectionWidget(
                   title: 'Account Management',
@@ -557,6 +565,14 @@ class _AccountScreenState extends State<AccountScreen>
                 SignOutButtonWidget(
                   onSignOut: _handleSignOut,
                 ),
+
+                // Second Banner Ad - Before Bottom Padding
+                BannerAdWidget(
+                  refreshKey: 'account_screen_bottom',
+                  enableAutoRefresh: true,
+                  margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+                ),
+
                 SizedBox(height: 2.h),
               ],
             ),

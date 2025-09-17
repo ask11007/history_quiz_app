@@ -10,6 +10,7 @@ import '../../core/services/supabase_service.dart';
 import '../../core/services/connectivity_service.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/custom_icon_widget.dart';
+import '../../widgets/banner_ad_widget.dart';
 import './widgets/subject_card_widget.dart';
 import './widgets/user_greeting_widget.dart';
 
@@ -345,6 +346,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           userAvatar: userProvider.userAvatar,
                         );
                       },
+                    ),
+
+                    // Banner Ad below user greeting - ALWAYS VISIBLE
+                    BannerAdWidget(
+                      refreshKey: 'home_screen',
+                      enableAutoRefresh: true,
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
                     ),
 
                     SizedBox(height: 2.h),
