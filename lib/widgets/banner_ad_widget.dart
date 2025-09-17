@@ -115,10 +115,26 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
               _errorMessage = error.message;
             });
 
-            // Aggressive retry - try again after short delay
-            Future.delayed(Duration(seconds: 3), () {
+            // Smart retry logic based on error code
+            Duration retryDelay;
+            if (error.code == 1) {
+              // Rate limiting - wait longer
+              retryDelay = Duration(minutes: 2);
+              print('🕒 Rate limited, waiting 2 minutes before retry');
+            } else if (error.code == 3) {
+              // No fill - normal, retry with standard delay
+              retryDelay = Duration(seconds: 30);
+              print('📭 No fill available, retrying in 30 seconds');
+            } else {
+              // Other errors - standard retry
+              retryDelay = Duration(seconds: 15);
+            }
+
+            // Retry after appropriate delay
+            Future.delayed(retryDelay, () {
               if (mounted) {
-                print('🔄 Retrying banner ad load...');
+                print(
+                    '🔄 Retrying banner ad load after ${retryDelay.inSeconds}s delay...');
                 _loadAd();
               }
             });
@@ -157,8 +173,8 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   }
 
   void _setupAutoRefresh() {
-    // Refresh ad every 2 minutes
-    Future.delayed(Duration(minutes: 2), () {
+    // Refresh ad every 3 minutes (optimized timing)
+    Future.delayed(Duration(minutes: 3), () {
       if (mounted && widget.enableAutoRefresh) {
         print('🔄 Auto-refreshing banner ad: ${widget.refreshKey}');
         _loadAd();

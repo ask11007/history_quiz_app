@@ -17,8 +17,16 @@ class AdService {
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
 
-  // Ad configuration for Indian market
-  static const bool _useTestAds = true; // Set to false for production
+  // Test mode configuration - set to false for production
+  static const bool _useTestAds = true; // 🔴 CHANGE TO FALSE FOR PRODUCTION
+
+  // Retry attempt tracking
+  static int _bannerRetryCount = 0;
+  static const int _maxRetryAttempts = 3;
+
+  // Rate limiting protection
+  static DateTime? _lastFailedRequest;
+  static const Duration _rateLimitCooldown = Duration(minutes: 5);
 
   // Test Ad Unit IDs (Google's test IDs for development)
   static const String _testBannerAdUnitId =
@@ -44,9 +52,11 @@ class AdService {
   String get mediumRectangleAdUnitId =>
       _useTestAds ? _testMediumRectangleAdUnitId : _prodMediumRectangleAdUnitId;
 
-  // Ad refresh configuration
-  static const Duration _bannerRefreshInterval = Duration(minutes: 2);
-  static const Duration _interstitialCooldown = Duration(minutes: 1);
+  // Ad refresh configuration - Optimized for production
+  static const Duration _bannerRefreshInterval = Duration(minutes: 3);
+  static const Duration _interstitialCooldown = Duration(minutes: 2);
+  static const Duration _retryDelay =
+      Duration(seconds: 30); // Increased retry delay
 
   // Interstitial ad management
   InterstitialAd? _interstitialAd;
@@ -98,6 +108,32 @@ class AdService {
     }
   }
 
+  /// Reset retry counter on successful ad load
+  void _resetRetryCounter() {
+    _bannerRetryCount = 0;
+    _lastFailedRequest = null;
+  }
+
+  /// Increment retry counter on ad failure
+  void _incrementRetryCounter() {
+    _bannerRetryCount++;
+    _lastFailedRequest = DateTime.now();
+  }
+
+  /// Check if we should attempt to load ads (rate limiting protection)
+  bool _shouldAttemptAdLoad() {
+    if (_lastFailedRequest != null) {
+      final timeSinceLastFailure =
+          DateTime.now().difference(_lastFailedRequest!);
+      if (timeSinceLastFailure < _rateLimitCooldown) {
+        print(
+            '⏰ Rate limit cooldown active. Time remaining: ${_rateLimitCooldown.inMinutes - timeSinceLastFailure.inMinutes} minutes');
+        return false;
+      }
+    }
+    return _bannerRetryCount < _maxRetryAttempts;
+  }
+
   /// Create banner ad with adaptive sizing and auto-refresh
   BannerAd createBannerAd({
     String? customAdUnitId,
@@ -119,6 +155,7 @@ class AdService {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           print('✅ Banner ad loaded: $refreshKey');
+          _resetRetryCounter(); // Reset retry counter on success
 
           // Setup auto-refresh if enabled
           if (enableAutoRefresh) {
@@ -130,10 +167,26 @@ class AdService {
           print('❌ Banner ad failed to load: $error');
           ad.dispose();
 
-          // Retry loading after delay
-          Timer(Duration(seconds: 10), () {
+          // Smart retry logic based on error code
+          Duration retryDelay;
+          if (error.code == 1) {
+            // Rate limiting - wait longer
+            retryDelay = Duration(minutes: 2);
+            print('🕒 Rate limited, waiting 2 minutes before retry');
+          } else if (error.code == 3) {
+            // No fill - normal, retry with standard delay
+            retryDelay = _retryDelay;
+            print('📭 No fill available, retrying in 30 seconds');
+          } else {
+            // Other errors - standard retry
+            retryDelay = Duration(seconds: 15);
+          }
+
+          // Retry loading after appropriate delay
+          Timer(retryDelay, () {
             if (_isInitialized) {
-              print('🔄 Retrying banner ad load...');
+              print(
+                  '🔄 Retrying banner ad load after ${retryDelay.inSeconds}s delay...');
               final retryAd = createBannerAd(
                 customAdUnitId: customAdUnitId,
                 customSize: customSize,

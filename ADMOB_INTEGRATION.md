@@ -213,11 +213,54 @@ Before publishing to Google Play Store:
 
 ## Troubleshooting
 
-### Common Issues
-1. **Ads not showing**: Check internet connection and ad unit IDs
-2. **Test ads in production**: Verify test mode is disabled
-3. **Layout issues**: Check responsive design on different screen sizes
-4. **Memory leaks**: Ensure proper ad disposal in widget dispose methods
+### Common AdMob Error Codes
+
+**Error Code 3: "No fill"**
+- **Status**: ✅ NORMAL - This is expected during development
+- **Meaning**: No ads available to display at this moment
+- **Solution**: Wait and retry automatically (handled by the app)
+- **Production**: Will be much less frequent with real ad inventory
+
+**Error Code 1: "Too many recently failed requests"**
+- **Status**: ⚠️ RATE LIMITING - AdMob is protecting against spam
+- **Meaning**: Too many rapid ad requests from the same device
+- **Solution**: App now waits 2 minutes before retry (optimized)
+- **Prevention**: Longer refresh intervals in production
+
+**Error Code 2: "Network Error"**
+- **Status**: 🌐 CONNECTIVITY ISSUE
+- **Meaning**: No internet connection or network timeout
+- **Solution**: App retries when connectivity restored
+
+### Optimized Retry Logic
+
+The app now implements smart retry logic:
+
+```dart
+// Error Code 1 (Rate Limiting) → Wait 2 minutes
+// Error Code 3 (No Fill) → Wait 30 seconds  
+// Other Errors → Wait 15 seconds
+```
+
+### Development vs Production Behavior
+
+**During Development (Test Mode)**:
+- ✅ Limited test ad inventory ("No fill" is normal)
+- ✅ Rate limiting more aggressive
+- ✅ Ads may not always show
+
+**In Production (Real Ads)**:
+- 🚀 Much higher ad fill rates
+- 💰 Better ad inventory availability
+- 📊 Improved revenue performance
+
+### Performance Optimizations Applied
+
+1. **Increased Refresh Intervals**: 2min → 3min
+2. **Smart Retry Logic**: Based on error codes
+3. **Rate Limit Protection**: Respects AdMob limits
+4. **Optimized Timeouts**: Prevents request spam
+5. **Better Error Handling**: Graceful fallbacks
 
 ### Debug Information
 Use `AdService.instance.getAdStatus()` to check:
