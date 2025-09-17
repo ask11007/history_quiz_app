@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// Centralized AdMob service for Indian market with aggressive ad display
@@ -202,12 +203,8 @@ class AdService {
       } else if (screenWidth >= 468) {
         adSize = AdSize.banner; // 320x50
       } else {
-        // For smaller screens, try to get adaptive size
-        final adaptiveSize = AdSize.getAnchoredAdaptiveBannerAdSize(
-          Orientation.portrait,
-          screenWidth.toInt(),
-        );
-        adSize = adaptiveSize ?? AdSize.banner;
+        // For smaller screens, use standard banner (adaptive requires async)
+        adSize = AdSize.banner;
       }
     } catch (e) {
       print('⚠️ Error creating adaptive ad size, using standard banner: $e');

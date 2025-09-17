@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:sizer/sizer.dart';
 
@@ -146,12 +147,8 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
       } else if (screenWidth >= 468) {
         return AdSize.banner; // 320x50
       } else {
-        // Try adaptive size for smaller screens
-        final adaptiveSize = AdSize.getAnchoredAdaptiveBannerAdSize(
-          Orientation.portrait,
-          screenWidth.toInt(),
-        );
-        return adaptiveSize ?? AdSize.banner;
+        // Try adaptive size for smaller screens - using standard banner for now
+        return AdSize.banner;
       }
     } catch (e) {
       print('⚠️ Error getting optimal ad size, using standard banner: $e');
@@ -315,36 +312,36 @@ class _MediumRectangleAdWidgetState extends State<MediumRectangleAdWidget> {
       });
 
       _mediumRectangleAd?.dispose();
-      _mediumRectangleAd = AdService.instance.createMediumRectangleAd(
-        enableAutoRefresh: widget.enableAutoRefresh,
-      );
+      _mediumRectangleAd = BannerAd(
+        adUnitId: AdService.instance.mediumRectangleAdUnitId,
+        size: AdSize.mediumRectangle,
+        request: const AdRequest(),
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            print('✅ Medium rectangle ad loaded');
+            if (mounted) {
+              setState(() {
+                _isAdLoaded = true;
+                _isAdFailed = false;
+              });
+            }
+          },
+          onAdFailedToLoad: (ad, error) {
+            print('❌ Medium rectangle ad failed: $error');
+            ad.dispose();
+            if (mounted) {
+              setState(() {
+                _isAdLoaded = false;
+                _isAdFailed = true;
+              });
 
-      // Add our own listener to update UI state
-      _mediumRectangleAd!.listener = BannerAdListener(
-        onAdLoaded: (ad) {
-          print('✅ Medium rectangle ad loaded');
-          if (mounted) {
-            setState(() {
-              _isAdLoaded = true;
-              _isAdFailed = false;
-            });
-          }
-        },
-        onAdFailedToLoad: (ad, error) {
-          print('❌ Medium rectangle ad failed: $error');
-          ad.dispose();
-          if (mounted) {
-            setState(() {
-              _isAdLoaded = false;
-              _isAdFailed = true;
-            });
-
-            // Retry
-            Future.delayed(Duration(seconds: 3), () {
-              if (mounted) _loadAd();
-            });
-          }
-        },
+              // Retry
+              Future.delayed(Duration(seconds: 3), () {
+                if (mounted) _loadAd();
+              });
+            }
+          },
+        ),
       );
 
       _mediumRectangleAd!.load();
