@@ -497,7 +497,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop(true);
-                    Navigator.pushReplacementNamed(context, '/main-navigation');
+                    Navigator.pop(context); // Go back to sub-topic screen
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC9463D),

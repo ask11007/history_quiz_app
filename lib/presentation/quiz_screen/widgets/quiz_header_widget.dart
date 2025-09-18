@@ -163,7 +163,8 @@ class QuizHeaderWidget extends StatelessWidget {
                 if (onBackPressed != null) {
                   onBackPressed!();
                 } else {
-                  Navigator.pushReplacementNamed(context, '/main-navigation');
+                  Navigator.pop(
+                      context); // Go back to previous screen (sub-topic)
                 }
               },
               style: ElevatedButton.styleFrom(
