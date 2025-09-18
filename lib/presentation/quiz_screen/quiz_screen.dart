@@ -286,117 +286,22 @@ class _QuizScreenState extends State<QuizScreen> {
     // Calculate simple quiz summary
     final summary = _quizStateManager.getQuizSummary(_quizData);
 
-    // Show simple popup dialog
+    // Show custom modal overlay with ad below dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Quiz Completed!',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        content: Padding(
-          padding: EdgeInsets.symmetric(vertical: 2.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Subject name
-              Text(
-                _subTopicName,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 3.h),
-
-              // Statistics in a compact grid
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem('Correct', '${summary['correct']}',
-                      const Color(0xFF02732A)),
-                  _buildStatItem(
-                      'Wrong', '${summary['wrong']}', const Color(0xFFC9463D)),
-                ],
-              ),
-              SizedBox(height: 2.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem('Attempted', '${summary['attempted']}',
-                      const Color(0xFF1976D2)),
-                  _buildStatItem('Unattempted', '${summary['unattempted']}',
-                      const Color(0xFFFF9800)),
-                ],
-              ),
-
-              // Custom Rectangle Ad below results
-              SizedBox(height: 2.h),
-              MediumRectangleAdWidget(
-                enableAutoRefresh: true,
-                margin: EdgeInsets.symmetric(horizontal: 2.w),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close dialog only
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.outline,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Text(
-                    '❌ Cancel',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 3.w),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close dialog
-                    Navigator.pop(context); // Go back to subtopic screen
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 1.5.h),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    '🏠 Home',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+      barrierColor: Colors.black.withOpacity(0.5),
+      builder: (context) => _QuizResultsModal(
+        subTopicName: _subTopicName,
+        summary: summary,
+        onCancel: () {
+          Navigator.pop(context); // Close dialog only
+        },
+        onHome: () {
+          Navigator.pop(context); // Close dialog
+          Navigator.pop(context); // Go back to subtopic screen
+        },
+        buildStatItem: _buildStatItem,
       ),
     );
   }
@@ -898,6 +803,162 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Custom modal widget for quiz results with ad positioned below dialog
+class _QuizResultsModal extends StatelessWidget {
+  final String subTopicName;
+  final Map<String, int> summary;
+  final VoidCallback onCancel;
+  final VoidCallback onHome;
+  final Widget Function(String, String, Color) buildStatItem;
+
+  const _QuizResultsModal({
+    Key? key,
+    required this.subTopicName,
+    required this.summary,
+    required this.onCancel,
+    required this.onHome,
+    required this.buildStatItem,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // Background with ad positioned below dialog area
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+              child: MediumRectangleAdWidget(
+                enableAutoRefresh: true,
+                margin: EdgeInsets.symmetric(horizontal: 2.w),
+              ),
+            ),
+          ),
+
+          // Clean results dialog positioned higher on screen
+          Center(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 25.h), // Push dialog higher
+              child: AlertDialog(
+                title: Text(
+                  'Quiz Completed!',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                content: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 2.h),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Subject name
+                      Text(
+                        subTopicName,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 3.h),
+
+                      // Statistics in a compact grid
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          buildStatItem('Correct', '${summary['correct']}',
+                              const Color(0xFF02732A)),
+                          buildStatItem('Wrong', '${summary['wrong']}',
+                              const Color(0xFFC9463D)),
+                        ],
+                      ),
+                      SizedBox(height: 2.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          buildStatItem('Attempted', '${summary['attempted']}',
+                              const Color(0xFF1976D2)),
+                          buildStatItem(
+                              'Unattempted',
+                              '${summary['unattempted']}',
+                              const Color(0xFFFF9800)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: onCancel,
+                          style: OutlinedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            side: BorderSide(
+                              color: Theme.of(context).colorScheme.outline,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            '❌ Cancel',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 3.w),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: onHome,
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: Text(
+                            '🏠 Home',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
