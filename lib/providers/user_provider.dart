@@ -878,7 +878,7 @@ class UserProvider extends ChangeNotifier {
       // Test 3: Database connectivity
       print('\n3. Testing database connectivity:');
       final connectionTest = await SupabaseService.client
-          .from('questions')
+          .from('civil_question')
           .select('count')
           .limit(1);
       print('   ✅ Database connection active: ${connectionTest != null}');
@@ -987,7 +987,7 @@ class UserProvider extends ChangeNotifier {
       print('\n2. Testing questions table...');
       try {
         final countResponse =
-            await client.from('questions').select('count').limit(1);
+            await client.from('civil_question').select('count').limit(1);
         print('   ✅ Questions table accessible: $countResponse');
       } catch (e) {
         print('   ❌ Questions table error: $e');
@@ -999,8 +999,10 @@ class UserProvider extends ChangeNotifier {
       // Test 3: Check if questions table has data
       print('\n3. Checking questions table data...');
       try {
-        final allQuestions =
-            await client.from('questions').select('id, question, tag').limit(5);
+        final allQuestions = await client
+            .from('civil_question')
+            .select('id, question, exam_name')
+            .limit(5);
         print('   ✅ Questions found: ${allQuestions.length}');
 
         if (allQuestions.isEmpty) {
@@ -1019,7 +1021,7 @@ class UserProvider extends ChangeNotifier {
               ? questionText.substring(0, 30) + '...'
               : questionText;
           print(
-              '     - ID: ${q['id']}, Tag: ${q['tag']}, Question: "$truncated"');
+              '     - ID: ${q['id']}, Exam: ${q['exam_name']}, Question: "$truncated"');
         }
       } catch (e) {
         print('   ❌ Error reading questions: $e');
@@ -1033,7 +1035,8 @@ class UserProvider extends ChangeNotifier {
 
         if (tags.isEmpty) {
           print('   ❌ PROBLEM: No subject tags found!');
-          print('   🔧 SOLUTION: Add questions with different "tag" values');
+          print(
+              '   🔧 SOLUTION: Add questions with different "exam_name" values');
         }
       } catch (e) {
         print('   ❌ Error fetching tags: $e');

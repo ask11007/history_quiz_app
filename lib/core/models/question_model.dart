@@ -6,7 +6,7 @@ class Question {
   final String optionC;
   final String optionD;
   final String explanation;
-  final String tag;
+  final String tag; // Maps to exam_name in database
   final int correctAnswer; // 0 for A, 1 for B, 2 for C, 3 for D
 
   Question({
@@ -23,41 +23,43 @@ class Question {
 
   factory Question.fromJson(Map<String, dynamic> json) {
     print('Parsing question JSON: $json');
-    
+
     // Handle correct_answer - find the index of the correct answer text
     int correctAnswer = 0; // Default to option A
-    
+
     if (json['correct_answer'] != null) {
       final correctAnswerText = json['correct_answer'].toString();
-      
+
       // Check which option matches the correct answer text
-      if (json['option_A'] == correctAnswerText) {
+      if (json['option_1'] == correctAnswerText) {
         correctAnswer = 0; // Option A
-      } else if (json['option_B'] == correctAnswerText) {
+      } else if (json['option_2'] == correctAnswerText) {
         correctAnswer = 1; // Option B
-      } else if (json['option_C'] == correctAnswerText) {
+      } else if (json['option_3'] == correctAnswerText) {
         correctAnswer = 2; // Option C
-      } else if (json['option_D'] == correctAnswerText) {
+      } else if (json['option_4'] == correctAnswerText) {
         correctAnswer = 3; // Option D
       } else {
-        print('Warning: Could not find correct answer "$correctAnswerText" in options');
+        print(
+            'Warning: Could not find correct answer "$correctAnswerText" in options');
         correctAnswer = 0; // Default to option A
       }
     }
-    
+
     final question = Question(
       id: json['id'] ?? 0,
       question: json['question'] ?? '',
-      optionA: json['option_A'] ?? '', // Changed from option_a to option_A
-      optionB: json['option_B'] ?? '', // Changed from option_b to option_B
-      optionC: json['option_C'] ?? '', // Changed from option_c to option_C
-      optionD: json['option_D'] ?? '', // Changed from option_d to option_D
+      optionA: json['option_1'] ?? '', // Changed from option_A to option_1
+      optionB: json['option_2'] ?? '', // Changed from option_B to option_2
+      optionC: json['option_3'] ?? '', // Changed from option_C to option_3
+      optionD: json['option_4'] ?? '', // Changed from option_D to option_4
       explanation: json['explanation'] ?? '',
-      tag: json['tag'] ?? '',
+      tag: json['exam_name'] ?? '', // Changed from tag to exam_name
       correctAnswer: correctAnswer,
     );
-    
-    print('Parsed question: ${question.question} with tag: ${question.tag}, correct answer index: $correctAnswer (${question.options[correctAnswer]})');
+
+    print(
+        'Parsed question: ${question.question} with exam_name: ${question.tag}, correct answer index: $correctAnswer (${question.options[correctAnswer]})');
     return question;
   }
 
@@ -65,12 +67,12 @@ class Question {
     return {
       'id': id,
       'question': question,
-      'option_A': optionA, // Changed from option_a to option_A
-      'option_B': optionB, // Changed from option_b to option_B
-      'option_C': optionC, // Changed from option_c to option_C
-      'option_D': optionD, // Changed from option_d to option_D
+      'option_1': optionA, // Changed from option_A to option_1
+      'option_2': optionB, // Changed from option_B to option_2
+      'option_3': optionC, // Changed from option_C to option_3
+      'option_4': optionD, // Changed from option_D to option_4
       'explanation': explanation,
-      'tag': tag,
+      'exam_name': tag, // Changed from tag to exam_name
       'correct_answer': correctAnswer,
     };
   }

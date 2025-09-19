@@ -4,27 +4,27 @@
 This app now integrates with Supabase to fetch quiz questions dynamically from your database instead of using static/hardcoded questions.
 
 ## Database Schema
-Your Supabase database should have a table named `questions` with the following columns:
+Your Supabase database should have a table named `civil_question` with the following columns:
 
 ```sql
-CREATE TABLE questions (
+CREATE TABLE civil_question (
   id SERIAL PRIMARY KEY,
   question TEXT NOT NULL,
-  option_A TEXT NOT NULL,
-  option_B TEXT NOT NULL,
-  option_C TEXT NOT NULL,
-  option_D TEXT NOT NULL,
-  explanation TEXT NOT NULL,
-  tag TEXT NOT NULL,
+  option_1 TEXT NOT NULL,
+  option_2 TEXT NOT NULL,
+  option_3 TEXT NOT NULL,
+  option_4 TEXT NOT NULL,
+  explanation TEXT,
+  exam_name TEXT NOT NULL,
   correct_answer TEXT NOT NULL
 );
 ```
 
 **Column Details:**
 - `question`: The quiz question text
-- `option_A`, `option_B`, `option_C`, `option_D`: The four answer options
+- `option_1`, `option_2`, `option_3`, `option_4`: The four answer options
 - `explanation`: Explanation of the correct answer
-- `tag`: Subject category (e.g., "GK", "Math", "Reasoning")
+- `exam_name`: Subject category (e.g., "GK", "Math", "Reasoning")
 - `correct_answer`: Correct answer as text (will be converted to 0-3 index)
 
 ## Setup Steps
@@ -47,22 +47,23 @@ CREATE TABLE questions (
 Insert some sample questions into your database:
 
 ```sql
-INSERT INTO questions (question, option_A, option_B, option_C, option_D, explanation, tag, correct_answer) VALUES
-('What is the value of π (pi) rounded to two decimal places?', '3.12', '3.14', '3.16', '3.18', 'π (pi) is approximately 3.14159, which rounds to 3.14 when rounded to two decimal places.', 'Math', '1'),
-('If 2x + 5 = 15, what is the value of x?', '5', '10', '7', '3', 'To solve 2x + 5 = 15, subtract 5 from both sides: 2x = 10. Then divide both sides by 2: x = 5.', 'Math', '0'),
-('What is the capital of France?', 'London', 'Berlin', 'Paris', 'Madrid', 'Paris is the capital and largest city of France.', 'GK', '2'),
-('Which planet is known as the Red Planet?', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Mars is called the Red Planet due to its reddish appearance.', 'GK', '1');
+```sql
+INSERT INTO civil_question (question, option_1, option_2, option_3, option_4, explanation, exam_name, correct_answer) VALUES
+('What is the value of π (pi) rounded to two decimal places?', '3.12', '3.14', '3.16', '3.18', 'π (pi) is approximately 3.14159, which rounds to 3.14 when rounded to two decimal places.', 'Math', '3.14'),
+('If 2x + 5 = 15, what is the value of x?', '5', '10', '7', '3', 'To solve 2x + 5 = 15, subtract 5 from both sides: 2x = 10. Then divide both sides by 2: x = 5.', 'Math', '5'),
+('What is the capital of France?', 'London', 'Berlin', 'Paris', 'Madrid', 'Paris is the capital and largest city of France.', 'GK', 'Paris'),
+('Which planet is known as the Red Planet?', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Mars is called the Red Planet due to its reddish appearance.', 'GK', 'Mars');
 ```
 
 ## How It Works
 
 ### 1. Question Loading
-- When a user selects a subject, the app fetches questions from Supabase using the `tag` column
-- Questions are automatically categorized by subject based on their tags
+- When a user selects a subject, the app fetches questions from Supabase using the `exam_name` column
+- Questions are automatically categorized by subject based on their exam_names
 - If no internet connection is available, the app shows a "No Internet Connection" message
 
 ### 2. Subject Categories
-The app automatically creates subject categories based on the unique values in the `tag` column. Make sure your tags match the subject names in your app:
+The app automatically creates subject categories based on the unique values in the `exam_name` column. Make sure your exam_names match the subject names in your app:
 - "GK" → "General Knowledge"
 - "Math" → "Mathematics" 
 - "Reasoning" → "Reasoning"
@@ -84,7 +85,7 @@ The app now properly handles offline scenarios:
 
 ### Common Issues:
 1. **"Failed to initialize Supabase"**: Check your URL and anon key
-2. **No questions loading**: Verify your database has questions with matching tags
+2. **No questions loading**: Verify your database has questions with matching exam_names
 3. **Network errors**: Check your internet connection and Supabase project status
 
 ### Debug Steps:
@@ -95,12 +96,12 @@ The app now properly handles offline scenarios:
 
 ### Database Permissions:
 1. **Enable Row Level Security (RLS)**: Go to Authentication → Policies in Supabase
-2. **Create Policy**: Add a policy to allow anonymous users to read from the questions table:
+2. **Create Policy**: Add a policy to allow anonymous users to read from the civil_question table:
    ```sql
-   CREATE POLICY "Allow anonymous read access" ON questions
+   CREATE POLICY "Allow anonymous read access" ON civil_question
    FOR SELECT USING (true);
    ```
-3. **Check Table Permissions**: Ensure the `questions` table allows SELECT operations for anonymous users
+3. **Check Table Permissions**: Ensure the `civil_question` table allows SELECT operations for anonymous users
 
 ## Security Notes
 - The anon key is safe to use in client apps

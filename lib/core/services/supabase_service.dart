@@ -24,7 +24,7 @@ class SupabaseService {
       // Only do a minimal connection test - no heavy queries
       try {
         final testResponse =
-            await _client.from('questions').select('count').limit(1);
+            await _client.from('civil_question').select('count').limit(1);
         print('Database connection test successful: $testResponse');
       } catch (e) {
         print('Database connection test failed: $e');
@@ -228,27 +228,27 @@ class SupabaseService {
         print('❌ No authenticated user');
       }
 
-      // Test 3: QUESTIONS table
-      print('\n3. Testing QUESTIONS table...');
+      // Test 3: CIVIL_QUESTION table
+      print('\n3. Testing CIVIL_QUESTION table...');
       try {
         final questionsTest = await _client
-            .from('questions')
-            .select('id, question, tag')
+            .from('civil_question')
+            .select('id, question, exam_name')
             .limit(3);
-        print('✅ Questions table accessible');
+        print('✅ Civil question table accessible');
         print('   Sample questions found: ${questionsTest.length}');
         for (var q in questionsTest) {
           print(
-              '   - ID: ${q['id']}, Tag: ${q['tag']}, Question: ${q['question']?.toString().substring(0, 50)}...');
+              '   - ID: ${q['id']}, Exam: ${q['exam_name']}, Question: ${q['question']?.toString().substring(0, 50)}...');
         }
 
-        // Test available tags in questions
+        // Test available exam_names in civil_question
         final tagsTest =
-            await _client.from('questions').select('tag').limit(10);
-        final uniqueTags = tagsTest.map((q) => q['tag']).toSet().toList();
+            await _client.from('civil_question').select('exam_name').limit(10);
+        final uniqueTags = tagsTest.map((q) => q['exam_name']).toSet().toList();
         print('   Available quiz subjects: $uniqueTags');
       } catch (e) {
-        print('❌ Questions table error: $e');
+        print('❌ Civil question table error: $e');
       }
 
       // Test 4: USER_PROFILES table
@@ -288,13 +288,13 @@ class SupabaseService {
       print('\n6. Testing table structures...');
       try {
         final questionsStructure =
-            await _client.from('questions').select('*').limit(1);
+            await _client.from('civil_question').select('*').limit(1);
         if (questionsStructure.isNotEmpty) {
           print(
-              '✅ Questions table structure: ${questionsStructure.first.keys.toList()}');
+              '✅ Civil question table structure: ${questionsStructure.first.keys.toList()}');
         }
       } catch (e) {
-        print('❌ Questions structure error: $e');
+        print('❌ Civil question structure error: $e');
       }
 
       try {
@@ -339,41 +339,45 @@ class SupabaseService {
       print('Testing Supabase connection...');
 
       // Test 1: Check if table exists
-      final tableTest = await _client.from('questions').select('id').limit(1);
+      final tableTest =
+          await _client.from('civil_question').select('id').limit(1);
       print('Table test result: $tableTest');
 
       // Test 2: Check table structure
       final structureTest =
-          await _client.from('questions').select('*').limit(1);
+          await _client.from('civil_question').select('*').limit(1);
       print('Structure test result: $structureTest');
 
-      // Test 3: Check available tags
-      final tagsTest = await _client.from('questions').select('tag');
-      print('Tags test result: $tagsTest');
+      // Test 3: Check available exam_names
+      final tagsTest = await _client.from('civil_question').select('exam_name');
+      print('Exam names test result: $tagsTest');
     } catch (e) {
       print('Connection test failed: $e');
     }
   }
 
-  // Fetch questions by tag (subject)
-  static Future<List<Question>> getQuestionsByTag(String tag) async {
+  // Fetch questions by exam_name (subject)
+  static Future<List<Question>> getQuestionsByTag(String examName) async {
     try {
-      print('Fetching questions for tag: "$tag"');
+      print('Fetching questions for exam_name: "$examName"');
 
       // First, let's check what's actually in the table
-      final allData = await _client.from('questions').select('*').limit(3);
+      final allData = await _client.from('civil_question').select('*').limit(3);
       print('Raw database content (first 3 rows): $allData');
 
       // Then try the specific query
-      final response =
-          await _client.from('questions').select().eq('tag', tag).order('id');
+      final response = await _client
+          .from('civil_question')
+          .select()
+          .eq('exam_name', examName)
+          .order('id');
 
-      print('Supabase response for tag "$tag": $response');
+      print('Supabase response for exam_name "$examName": $response');
       print('Response type: ${response.runtimeType}');
       print('Response length: ${response?.length ?? 'null'}');
 
       if (response == null || response.isEmpty) {
-        print('No questions found for tag: $tag');
+        print('No questions found for exam_name: $examName');
         return [];
       }
 
@@ -382,7 +386,7 @@ class SupabaseService {
       print('Successfully parsed ${questions.length} questions');
       return questions;
     } catch (e) {
-      print('Error fetching questions by tag: $e');
+      print('Error fetching questions by exam_name: $e');
       print('Error type: ${e.runtimeType}');
       return [];
     }
@@ -391,7 +395,8 @@ class SupabaseService {
   // Fetch all questions
   static Future<List<Question>> getAllQuestions() async {
     try {
-      final response = await _client.from('questions').select().order('id');
+      final response =
+          await _client.from('civil_question').select().order('id');
 
       return (response as List).map((json) => Question.fromJson(json)).toList();
       return [];
@@ -401,57 +406,60 @@ class SupabaseService {
     }
   }
 
-  // Fetch available tags (subjects)
+  // Fetch available exam_names (subjects)
   static Future<List<String>> getAvailableTags() async {
     try {
-      print('Fetching available tags from questions table...');
+      print('Fetching available exam_names from civil_question table...');
 
       // First check if table has any data at all
-      final countCheck = await _client.from('questions').select('id').limit(1);
+      final countCheck =
+          await _client.from('civil_question').select('id').limit(1);
       print('Table data check: $countCheck');
 
       if (countCheck.isEmpty) {
-        print('❌ PROBLEM: Questions table is completely EMPTY!');
-        print('   You need to add data to your questions table');
+        print('❌ PROBLEM: Civil question table is completely EMPTY!');
+        print('   You need to add data to your civil_question table');
         return [];
       }
 
-      final response =
-          await _client.from('questions').select('tag').order('tag');
-      print('Tags response: $response');
+      final response = await _client
+          .from('civil_question')
+          .select('exam_name')
+          .order('exam_name');
+      print('Exam names response: $response');
 
       if (response == null || response.isEmpty) {
-        print('No tags found in response');
+        print('No exam_names found in response');
         return [];
       }
 
-      final tags = (response as List)
-          .map((json) => json['tag'] as String)
+      final examNames = (response as List)
+          .map((json) => json['exam_name'] as String)
           .toSet() // Remove duplicates
           .toList();
-      print('Available tags extracted: $tags');
-      return tags;
+      print('Available exam_names extracted: $examNames');
+      return examNames;
     } catch (e) {
-      print('Error fetching tags: $e');
+      print('Error fetching exam_names: $e');
       print('Error type: ${e.runtimeType}');
       return [];
     }
   }
 
-  // Fetch available sub-tags for a specific subject tag
-  static Future<List<String>> getAvailableSubTags(String tag) async {
+  // Fetch available sub-tags for a specific subject exam_name
+  static Future<List<String>> getAvailableSubTags(String examName) async {
     try {
-      print('Fetching available sub-tags for tag: "$tag"');
+      print('Fetching available sub-tags for exam_name: "$examName"');
 
       final response = await _client
-          .from('questions')
+          .from('civil_question')
           .select('sub_tag')
-          .eq('tag', tag)
+          .eq('exam_name', examName)
           .order('sub_tag');
       print('Sub-tags response: $response');
 
       if (response == null || response.isEmpty) {
-        print('No sub-tags found for tag: $tag');
+        print('No sub-tags found for exam_name: $examName');
         return [];
       }
 
@@ -470,24 +478,26 @@ class SupabaseService {
     }
   }
 
-  // Fetch questions by both tag and sub_tag
+  // Fetch questions by both exam_name and sub_tag
   static Future<List<Question>> getQuestionsByTagAndSubTag(
-      String tag, String subTag) async {
+      String examName, String subTag) async {
     try {
-      print('Fetching questions for tag: "$tag" and sub_tag: "$subTag"');
+      print(
+          'Fetching questions for exam_name: "$examName" and sub_tag: "$subTag"');
 
       final response = await _client
-          .from('questions')
+          .from('civil_question')
           .select()
-          .eq('tag', tag)
+          .eq('exam_name', examName)
           .eq('sub_tag', subTag)
           .order('id');
 
       print(
-          'Supabase response for tag "$tag" and sub_tag "$subTag": $response');
+          'Supabase response for exam_name "$examName" and sub_tag "$subTag": $response');
 
       if (response == null || response.isEmpty) {
-        print('No questions found for tag: $tag and sub_tag: $subTag');
+        print(
+            'No questions found for exam_name: $examName and sub_tag: $subTag');
         return [];
       }
 
@@ -496,7 +506,7 @@ class SupabaseService {
       print('Successfully parsed ${questions.length} questions');
       return questions;
     } catch (e) {
-      print('Error fetching questions by tag and sub_tag: $e');
+      print('Error fetching questions by exam_name and sub_tag: $e');
       return [];
     }
   }
@@ -504,7 +514,7 @@ class SupabaseService {
   // Add a new question
   static Future<bool> addQuestion(Question question) async {
     try {
-      await _client.from('questions').insert(question.toJson());
+      await _client.from('civil_question').insert(question.toJson());
       return true;
     } catch (e) {
       print('Error adding question: $e');
@@ -516,7 +526,7 @@ class SupabaseService {
   static Future<bool> updateQuestion(Question question) async {
     try {
       await _client
-          .from('questions')
+          .from('civil_question')
           .update(question.toJson())
           .eq('id', question.id);
       return true;
@@ -529,7 +539,7 @@ class SupabaseService {
   // Delete a question
   static Future<bool> deleteQuestion(int id) async {
     try {
-      await _client.from('questions').delete().eq('id', id);
+      await _client.from('civil_question').delete().eq('id', id);
       return true;
     } catch (e) {
       print('Error deleting question: $e');

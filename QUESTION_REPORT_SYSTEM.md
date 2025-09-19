@@ -7,7 +7,7 @@ A comprehensive question reporting system that allows users to report issues wit
 ```sql
 CREATE TABLE question_reports (
   id SERIAL PRIMARY KEY,
-  question_id INTEGER NOT NULL REFERENCES questions(id),
+  question_id INTEGER NOT NULL REFERENCES civil_question(id),
   report_type TEXT NOT NULL,
   description TEXT,
   user_email TEXT,
