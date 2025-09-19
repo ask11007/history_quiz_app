@@ -520,21 +520,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void _navigateToQuiz(Map<String, dynamic> subject) async {
     HapticFeedback.lightImpact();
 
-    // Navigate to sub-topic selection screen instead of directly to quiz
-    print('Navigating to sub-topic selection with subject data:');
+    // Navigate directly to quiz screen since civil_question table doesn't have sub_tags
+    print('Navigating directly to quiz with subject data:');
     print('  ID: ${subject["id"]}');
     print('  Name: ${subject["name"]}');
     print('  Original Tag: ${subject["originalTag"]}');
 
     Navigator.pushNamed(
       context,
-      '/sub-topic-screen',
+      '/quiz-screen',
       arguments: {
         'subjectId': subject["id"],
         'subjectName': subject["name"],
         'subjectTag': subject["originalTag"], // Pass the original database tag
-        'backgroundColor': subject["backgroundColor"],
-        'icon': subject["icon"],
+        'subTopicName': subject["name"], // Use subject name as topic name
         'totalQuestions': subject["totalQuestions"],
       },
     );

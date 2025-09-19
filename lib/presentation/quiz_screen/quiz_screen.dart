@@ -299,7 +299,7 @@ class _QuizScreenState extends State<QuizScreen> {
         },
         onHome: () {
           Navigator.pop(context); // Close dialog
-          Navigator.pop(context); // Go back to subtopic screen
+          Navigator.pop(context); // Go back to home screen
         },
         buildStatItem: _buildStatItem,
       ),

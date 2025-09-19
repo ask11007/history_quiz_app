@@ -446,67 +446,36 @@ class SupabaseService {
     }
   }
 
-  // Fetch available sub-tags for a specific subject exam_name
+  // NOTE: This method returns empty list since civil_question table doesn't have sub_tag column
+  // Kept for backward compatibility
   static Future<List<String>> getAvailableSubTags(String examName) async {
     try {
-      print('Fetching available sub-tags for exam_name: "$examName"');
+      print('getAvailableSubTags called for exam_name: "$examName"');
+      print(
+          '⚠️ Note: civil_question table doesn\'t have sub_tag column, returning empty list');
 
-      final response = await _client
-          .from('civil_question')
-          .select('sub_tag')
-          .eq('exam_name', examName)
-          .order('sub_tag');
-      print('Sub-tags response: $response');
-
-      if (response == null || response.isEmpty) {
-        print('No sub-tags found for exam_name: $examName');
-        return [];
-      }
-
-      final subTags = (response as List)
-          .map((json) => json['sub_tag'] as String?)
-          .where((subTag) => subTag != null && subTag.isNotEmpty)
-          .map((subTag) => subTag!)
-          .toSet() // Remove duplicates
-          .toList();
-      print('Available sub-tags extracted: $subTags');
-      return subTags;
+      // Since civil_question table doesn't have sub_tag column, return empty list
+      return [];
     } catch (e) {
-      print('Error fetching sub-tags: $e');
-      print('Error type: ${e.runtimeType}');
+      print('Error in getAvailableSubTags: $e');
       return [];
     }
   }
 
-  // Fetch questions by both exam_name and sub_tag
+  // NOTE: This method returns empty list since civil_question table doesn't have sub_tag column
+  // Kept for backward compatibility
   static Future<List<Question>> getQuestionsByTagAndSubTag(
       String examName, String subTag) async {
     try {
       print(
-          'Fetching questions for exam_name: "$examName" and sub_tag: "$subTag"');
-
-      final response = await _client
-          .from('civil_question')
-          .select()
-          .eq('exam_name', examName)
-          .eq('sub_tag', subTag)
-          .order('id');
-
+          'getQuestionsByTagAndSubTag called for exam_name: "$examName" and sub_tag: "$subTag"');
       print(
-          'Supabase response for exam_name "$examName" and sub_tag "$subTag": $response');
+          '⚠️ Note: civil_question table doesn\'t have sub_tag column, returning empty list');
 
-      if (response == null || response.isEmpty) {
-        print(
-            'No questions found for exam_name: $examName and sub_tag: $subTag');
-        return [];
-      }
-
-      final questions =
-          (response as List).map((json) => Question.fromJson(json)).toList();
-      print('Successfully parsed ${questions.length} questions');
-      return questions;
+      // Since civil_question table doesn't have sub_tag column, return empty list
+      return [];
     } catch (e) {
-      print('Error fetching questions by exam_name and sub_tag: $e');
+      print('Error in getQuestionsByTagAndSubTag: $e');
       return [];
     }
   }
