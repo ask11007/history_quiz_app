@@ -831,17 +831,14 @@ class _QuizResultsModal extends StatelessWidget {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Background with ad positioned below dialog area
+          // Ad positioned directly at bottom without container constraints
           Positioned(
-            bottom: 0,
+            bottom: 2.h,
             left: 0,
             right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-              child: MediumRectangleAdWidget(
-                enableAutoRefresh: true,
-                margin: EdgeInsets.symmetric(horizontal: 2.w),
-              ),
+            child: MediumRectangleAdWidget(
+              enableAutoRefresh: true,
+              margin: EdgeInsets.symmetric(horizontal: 4.w),
             ),
           ),
 
