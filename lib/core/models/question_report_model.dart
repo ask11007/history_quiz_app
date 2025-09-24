@@ -62,7 +62,6 @@ class QuestionReport {
 class ReportTypes {
   static const String incorrectAnswer = 'Incorrect Answer';
   static const String wrongOptions = 'Wrong Options';
-  static const String poorExplanation = 'Poor Explanation';
   static const String unclearQuestion = 'Unclear Question';
   static const String typographicalError = 'Typographical Error';
   static const String other = 'Other';

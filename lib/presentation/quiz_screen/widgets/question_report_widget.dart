@@ -95,7 +95,7 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
         content: Text(
           message,
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onError, // White text in dark mode
+            color: Colors.white, // White text in dark mode
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.error,
@@ -127,7 +127,7 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
       // Limit the dialog height to make it more compact
       child: ConstrainedBox(      
         constraints: BoxConstraints(
-          maxHeight: 78.h, // Limit maximum height to 78% of screen height
+          maxHeight: 80.h, // Limit maximum height to 78% of screen height
         ),
         child: SingleChildScrollView(
           child: Padding(
