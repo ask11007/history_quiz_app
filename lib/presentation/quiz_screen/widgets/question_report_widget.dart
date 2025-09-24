@@ -116,7 +116,8 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
       ),
       child: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(6.w),
+          // Reduced padding from 6.w to 4.w to make dialog more compact
+          padding: EdgeInsets.all(4.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,12 +167,13 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                 ],
               ),
 
-              SizedBox(height: 4.h),
+              // Reduced spacing from 4.h to 2.h
+              SizedBox(height: 2.h),
 
               // Question Preview
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(4.w),
+                padding: EdgeInsets.all(3.w), // Reduced padding from 4.w to 3.w
                 decoration: BoxDecoration(
                   color: Theme.of(context)
                       .colorScheme
@@ -204,7 +206,8 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                 ),
               ),
 
-              SizedBox(height: 3.h),
+              // Reduced spacing from 3.h to 1.5.h
+              SizedBox(height: 1.5.h),
 
               // Report Type Selection
               Text(
@@ -213,11 +216,12 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                       fontWeight: FontWeight.w600,
                     ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: 1.5.h), // Reduced from 2.h to 1.5.h
 
               ...ReportTypes.all.map((type) => _buildReportTypeOption(type)),
 
-              SizedBox(height: 3.h),
+              // Reduced spacing from 3.h to 1.5.h
+              SizedBox(height: 1.5.h),
 
               // Description Field
               Text(
@@ -233,7 +237,7 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
-              SizedBox(height: 2.h),
+              SizedBox(height: 1.5.h), // Reduced from 2.h to 1.5.h
 
               Container(
                 decoration: BoxDecoration(
@@ -244,12 +248,12 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                 ),
                 child: TextField(
                   controller: _descriptionController,
-                  maxLines: 4,
+                  maxLines: 3, // Reduced from 4 to 3 lines
                   maxLength: _maxCharacters,
                   decoration: InputDecoration(
                     hintText: 'Describe the issue in detail...',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(4.w),
+                    contentPadding: EdgeInsets.all(3.w), // Reduced from 4.w to 3.w
                     counterText: '$_characterCount/$_maxCharacters',
                     counterStyle: TextStyle(
                       color: _characterCount > _maxCharacters * 0.8
@@ -262,7 +266,7 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                 ),
               ),
 
-              SizedBox(height: 4.h),
+              SizedBox(height: 2.h), // Reduced from 4.h to 2.h
 
               // Action Buttons
               Row(
@@ -273,7 +277,7 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                           ? null
                           : () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                        padding: EdgeInsets.symmetric(vertical: 1.2.h), // Reduced from 1.5.h
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -290,12 +294,12 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 3.w),
+                  SizedBox(width: 2.w), // Reduced from 3.w
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isSubmitting ? null : _submitReport,
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 1.5.h),
+                        padding: EdgeInsets.symmetric(vertical: 1.2.h), // Reduced from 1.5.h
                         backgroundColor: Theme.of(context).colorScheme.error,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
@@ -351,8 +355,8 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
       },
       child: Container(
         width: double.infinity,
-        margin: EdgeInsets.only(bottom: 2.h),
-        padding: EdgeInsets.all(4.w),
+        margin: EdgeInsets.only(bottom: 1.5.h), // Reduced from 2.h to 1.5.h
+        padding: EdgeInsets.all(3.w), // Reduced from 4.w to 3.w
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.1)
