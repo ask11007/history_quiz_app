@@ -375,6 +375,92 @@ class AdService {
     }
   }
 
+  /// Ensure ad is shown with fallback mechanisms
+  /// This method will wait for an ad to be ready and show it, with timeout protection
+  Future<bool> ensureInterstitialAdShown({Duration timeout = const Duration(seconds: 10)}) async {
+    if (!_isInitialized) {
+      print('⚠️ AdService not initialized');
+      return false;
+    }
+
+    // First, try to show immediately if ad is ready
+    if (_isInterstitialReady && _interstitialAd != null) {
+      // Check cooldown period
+      if (_lastInterstitialShow != null) {
+        final timeSinceLastShow = DateTime.now().difference(_lastInterstitialShow!);
+        if (timeSinceLastShow < _interstitialCooldown) {
+          print('⏰ Interstitial ad on cooldown, but proceeding due to ensure method');
+        }
+      }
+
+      try {
+        await _interstitialAd!.show();
+        _lastInterstitialShow = DateTime.now();
+        print('✅ Interstitial ad shown successfully (immediate)');
+        return true;
+      } catch (e) {
+        print('❌ Error showing interstitial ad (immediate): $e');
+      }
+    }
+
+    // If not ready, wait for it to load with timeout
+    print('⏳ Waiting for interstitial ad to load...');
+    final Completer<bool> completer = Completer<bool>();
+    
+    // Timer to handle timeout
+    final timer = Timer(timeout, () {
+      if (!completer.isCompleted) {
+        print('⏰ Timeout waiting for interstitial ad');
+        completer.complete(false);
+      }
+    });
+
+    // Attempt to load and show ad
+    void attemptToShowAd() {
+      if (completer.isCompleted) return;
+      
+      if (_isInterstitialReady && _interstitialAd != null) {
+        try {
+          _interstitialAd!.show().then((_) {
+            _lastInterstitialShow = DateTime.now();
+            if (!completer.isCompleted) {
+              print('✅ Interstitial ad shown successfully (loaded)');
+              completer.complete(true);
+            }
+          }).catchError((e) {
+            print('❌ Error showing interstitial ad (loaded): $e');
+            if (!completer.isCompleted) {
+              completer.complete(false);
+            }
+          });
+        } catch (e) {
+          print('❌ Exception showing interstitial ad (loaded): $e');
+          if (!completer.isCompleted) {
+            completer.complete(false);
+          }
+        }
+      } else {
+        // Still not ready, retry in a moment
+        Future.delayed(Duration(milliseconds: 500), attemptToShowAd);
+      }
+    }
+
+    // Start loading a new ad if none is ready
+    if (!_isInterstitialReady || _interstitialAd == null) {
+      print('🔄 Loading new interstitial ad...');
+      _loadInterstitialAd();
+    }
+
+    // Start the attempt cycle
+    attemptToShowAd();
+
+    // Wait for result or timeout
+    final result = await completer.future;
+    timer.cancel();
+    
+    return result;
+  }
+
   /// Check if interstitial ad is ready
   bool get isInterstitialReady => _isInterstitialReady;
 

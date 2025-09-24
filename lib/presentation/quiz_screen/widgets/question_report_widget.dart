@@ -125,9 +125,9 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
         borderRadius: BorderRadius.circular(16),
       ),
       // Limit the dialog height to make it more compact
-      child: ConstrainedBox(
+      child: ConstrainedBox(      
         constraints: BoxConstraints(
-          maxHeight: 70.h, // Limit maximum height to 70% of screen height
+          maxHeight: 78.h, // Limit maximum height to 78% of screen height
         ),
         child: SingleChildScrollView(
           child: Padding(

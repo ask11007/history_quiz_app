@@ -81,9 +81,10 @@ class _QuizScreenState extends State<QuizScreen> {
       return;
     }
 
-    // Show interstitial ad when starting the quiz (only once)
+    // Show interstitial ad when starting the quiz (only once) with fallback
     if (!_hasShownStartAd) {
-      await AdService.instance.showInterstitialAd();
+      print('📢 Ensuring interstitial ad is shown at quiz start...');
+      await AdService.instance.ensureInterstitialAdShown();
       _hasShownStartAd = true;
     }
 
@@ -342,8 +343,9 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<bool> _onWillPop() async {
-    // Show interstitial ad when exiting the quiz
-    await AdService.instance.showInterstitialAd();
+    // Show interstitial ad when exiting the quiz with fallback
+    print('📢 Ensuring interstitial ad is shown on quiz exit...');
+    await AdService.instance.ensureInterstitialAdShown();
     
     return await showDialog(
           context: context,
@@ -450,8 +452,9 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _showExitConfirmation() {
-    // Show interstitial ad when exiting the quiz
-    AdService.instance.showInterstitialAd().then((_) {
+    // Show interstitial ad when exiting the quiz with fallback
+    print('📢 Ensuring interstitial ad is shown on exit confirmation...');
+    AdService.instance.ensureInterstitialAdShown().then((_) {
       // Navigate back to home screen
       Navigator.pop(context);
     });
