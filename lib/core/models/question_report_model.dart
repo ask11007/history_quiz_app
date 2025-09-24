@@ -69,7 +69,6 @@ class ReportTypes {
   static List<String> get all => [
         incorrectAnswer,
         wrongOptions,
-        poorExplanation,
         unclearQuestion,
         typographicalError,
         other,
