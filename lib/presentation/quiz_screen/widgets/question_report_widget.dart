@@ -92,7 +92,12 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onError, // White text in dark mode
+          ),
+        ),
         backgroundColor: Theme.of(context).colorScheme.error,
       ),
     );
@@ -101,7 +106,12 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Colors.white, // White text for success message
+          ),
+        ),
         backgroundColor: const Color(0xFF02732A),
       ),
     );
