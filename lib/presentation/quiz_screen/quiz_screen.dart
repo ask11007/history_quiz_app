@@ -40,6 +40,7 @@ class _QuizScreenState extends State<QuizScreen> {
   List<Question> _quizData = [];
   String _subjectName = '';
   String _subjectTag = '';
+  String _subTopicName = ''; // Added back for compatibility with QuizHeaderWidget
   final ConnectivityService _connectivityService = ConnectivityService();
 
   final List<String> _optionLabels = ['A', 'B', 'C', 'D'];
@@ -284,14 +285,14 @@ class _QuizScreenState extends State<QuizScreen> {
       barrierDismissible: false,
       barrierColor: Colors.black.withOpacity(0.5),
       builder: (context) => _QuizResultsModal(
-        subTopicName: _subTopicName,
+        subTopicName: _subjectName, // Changed from _subTopicName to _subjectName
         summary: summary,
         onCancel: () {
           Navigator.pop(context); // Close dialog only
         },
         onHome: () {
           Navigator.pop(context); // Close dialog
-          Navigator.pop(context); // Go back to subtopic screen
+          Navigator.pop(context); // Go back to home screen
         },
         buildStatItem: _buildStatItem,
       ),
@@ -394,7 +395,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop(true);
-                    Navigator.pop(context); // Go back to sub-topic screen
+                    Navigator.pop(context); // Go back to home screen
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFC9463D),
@@ -436,6 +437,15 @@ class _QuizScreenState extends State<QuizScreen> {
     }
 
     return OptionState.unselected;
+  }
+
+  void _showExitConfirmation() {
+    // Navigate back to home screen
+    Navigator.pop(context);
+  }
+
+  void _showQuestionReport() {
+    _showReportDialog();
   }
 
   @override
