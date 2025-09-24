@@ -114,235 +114,261 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: SingleChildScrollView(
-        child: Padding(
-          // Reduced padding from 6.w to 4.w to make dialog more compact
-          padding: EdgeInsets.all(4.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(2.w),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .errorContainer
-                          .withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.report_problem,
-                      color: Theme.of(context).colorScheme.error,
-                      size: 6.w,
-                    ),
-                  ),
-                  SizedBox(width: 3.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Report Question',
-                          style:
-                              Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                        Text(
-                          'Help us improve content quality',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              // Reduced spacing from 4.h to 2.h
-              SizedBox(height: 2.h),
-
-              // Question Preview
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(3.w), // Reduced padding from 4.w to 3.w
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .surfaceVariant
-                      .withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.2),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      // Limit the dialog height to make it more compact
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: 70.h, // Limit maximum height to 70% of screen height
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            // Further reduced padding to make dialog more compact
+            padding: EdgeInsets.all(3.w),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
                   children: [
-                    Text(
-                      'Question:',
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
+                    Container(
+                      padding: EdgeInsets.all(1.5.w),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .errorContainer
+                            .withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.report_problem,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 5.w,
+                      ),
                     ),
-                    SizedBox(height: 1.h),
-                    Text(
-                      widget.question.question,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
+                    SizedBox(width: 2.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Report Question',
+                            style:
+                                Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                          ),
+                          Text(
+                            'Help us improve content quality',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                      fontSize: 10.sp,
+                                    ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
 
-              // Reduced spacing from 3.h to 1.5.h
-              SizedBox(height: 1.5.h),
+                // Further reduced spacing
+                SizedBox(height: 1.5.h),
 
-              // Report Type Selection
-              Text(
-                'What\'s the issue?',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                // Question Preview
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(2.w), // Further reduced padding
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceVariant
+                        .withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color:
+                          Theme.of(context).colorScheme.outline.withOpacity(0.2),
                     ),
-              ),
-              SizedBox(height: 1.5.h), // Reduced from 2.h to 1.5.h
-
-              ...ReportTypes.all.map((type) => _buildReportTypeOption(type)),
-
-              // Reduced spacing from 3.h to 1.5.h
-              SizedBox(height: 1.5.h),
-
-              // Description Field
-              Text(
-                'Additional details (optional)',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              SizedBox(height: 1.h),
-              Text(
-                'Provide specific details to help us understand the issue better.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-              ),
-              SizedBox(height: 1.5.h), // Reduced from 2.h to 1.5.h
-
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Question:',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                      SizedBox(height: 0.5.h),
+                      Text(
+                        widget.question.question,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 12.sp,
+                        ),
+                        maxLines: 2, // Reduced from 3 to 2 lines
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
                 ),
-                child: TextField(
-                  controller: _descriptionController,
-                  maxLines: 3, // Reduced from 4 to 3 lines
-                  maxLength: _maxCharacters,
-                  decoration: InputDecoration(
-                    hintText: 'Describe the issue in detail...',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(3.w), // Reduced from 4.w to 3.w
-                    counterText: '$_characterCount/$_maxCharacters',
-                    counterStyle: TextStyle(
-                      color: _characterCount > _maxCharacters * 0.8
-                          ? Theme.of(context).colorScheme.error
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+
+                // Further reduced spacing
+                SizedBox(height: 1.h),
+
+                // Report Type Selection
+                Text(
+                  'What\'s the issue?',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14.sp,
+                      ),
+                ),
+                SizedBox(height: 1.h), // Further reduced
+
+                // Limit the number of report types shown to reduce height
+                ...ReportTypes.all.take(4).map((type) => _buildReportTypeOption(type)),
+
+                // Further reduced spacing
+                SizedBox(height: 1.h),
+
+                // Description Field
+                Text(
+                  'Additional details (optional)',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14.sp,
+                      ),
+                ),
+                SizedBox(height: 0.5.h),
+                Text(
+                  'Provide specific details to help us understand the issue better.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 10.sp,
+                      ),
+                ),
+                SizedBox(height: 1.h), // Further reduced
+
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _descriptionController,
+                    maxLines: 2, // Further reduced from 3 to 2 lines
+                    maxLength: _maxCharacters,
+                    decoration: InputDecoration(
+                      hintText: 'Describe the issue in detail...',
+                      hintStyle: TextStyle(
+                        fontSize: 12.sp,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(2.w), // Further reduced padding
+                      counterText: '$_characterCount/$_maxCharacters',
+                      counterStyle: TextStyle(
+                        color: _characterCount > _maxCharacters * 0.8
+                            ? Theme.of(context).colorScheme.error
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 10.sp,
+                      ),
+                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 12.sp,
                     ),
                   ),
-                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
-              ),
 
-              SizedBox(height: 2.h), // Reduced from 4.h to 2.h
+                SizedBox(height: 1.5.h), // Further reduced
 
-              // Action Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isSubmitting
-                          ? null
-                          : () => Navigator.of(context).pop(),
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 1.2.h), // Reduced from 1.5.h
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isSubmitting
+                            ? null
+                            : () => Navigator.of(context).pop(),
+                        style: OutlinedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 1.h), // Further reduced
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          side: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
                         ),
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
+                        child: Text(
+                          'Cancel',
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 13.sp,
+                                  ),
                         ),
-                      ),
-                      child: Text(
-                        'Cancel',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: 2.w), // Reduced from 3.w
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitReport,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 1.2.h), // Reduced from 1.5.h
-                        backgroundColor: Theme.of(context).colorScheme.error,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    SizedBox(width: 1.5.w), // Further reduced
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting ? null : _submitReport,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 1.h), // Further reduced
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
+                        child: _isSubmitting
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 3.w,
+                                    height: 3.w,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  ),
+                                  SizedBox(width: 1.w),
+                                  Text(
+                                    'Submitting...',
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                'Submit Report',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13.sp,
+                                    ),
+                              ),
                       ),
-                      child: _isSubmitting
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 4.w,
-                                  height: 4.w,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
-                                  ),
-                                ),
-                                SizedBox(width: 2.w),
-                                Text('Submitting...'),
-                              ],
-                            )
-                          : Text(
-                              'Submit Report',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  ],
+                ),
+              ],
+            ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildReportTypeOption(String type) {
     final isSelected = _selectedReportType == type;
@@ -355,8 +381,8 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
       },
       child: Container(
         width: double.infinity,
-        margin: EdgeInsets.only(bottom: 1.5.h), // Reduced from 2.h to 1.5.h
-        padding: EdgeInsets.all(3.w), // Reduced from 4.w to 3.w
+        margin: EdgeInsets.only(bottom: 1.h), // Further reduced
+        padding: EdgeInsets.all(2.w), // Further reduced padding
         decoration: BoxDecoration(
           color: isSelected
               ? Theme.of(context).colorScheme.errorContainer.withOpacity(0.1)
@@ -372,8 +398,8 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
         child: Row(
           children: [
             Container(
-              width: 5.w,
-              height: 5.w,
+              width: 4.w,
+              height: 4.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
@@ -390,11 +416,11 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                   ? Icon(
                       Icons.check,
                       color: Colors.white,
-                      size: 3.w,
+                      size: 2.5.w,
                     )
                   : null,
             ),
-            SizedBox(width: 3.w),
+            SizedBox(width: 2.w),
             Expanded(
               child: Text(
                 type,
@@ -404,6 +430,7 @@ class _QuestionReportWidgetState extends State<QuestionReportWidget> {
                       color: isSelected
                           ? Theme.of(context).colorScheme.error
                           : Theme.of(context).colorScheme.onSurface,
+                      fontSize: 12.sp,
                     ),
               ),
             ),
