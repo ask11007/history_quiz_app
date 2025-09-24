@@ -348,14 +348,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
 
-                    // Banner Ad below user greeting - ALWAYS VISIBLE
-                    BannerAdWidget(
-                      refreshKey: 'home_screen',
-                      enableAutoRefresh: true,
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
-                    ),
-
                     SizedBox(height: 2.h),
 
                     // Welcome message
@@ -520,21 +512,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void _navigateToQuiz(Map<String, dynamic> subject) async {
     HapticFeedback.lightImpact();
 
-    // Navigate to sub-topic selection screen instead of directly to quiz
-    print('Navigating to sub-topic selection with subject data:');
+    // Navigate directly to quiz screen instead of sub-topic screen
+    print('Navigating directly to quiz with subject data:');
     print('  ID: ${subject["id"]}');
     print('  Name: ${subject["name"]}');
     print('  Original Tag: ${subject["originalTag"]}');
 
     Navigator.pushNamed(
       context,
-      '/sub-topic-screen',
+      '/quiz-screen', // Navigate directly to quiz screen
       arguments: {
         'subjectId': subject["id"],
         'subjectName': subject["name"],
         'subjectTag': subject["originalTag"], // Pass the original database tag
-        'backgroundColor': subject["backgroundColor"],
-        'icon': subject["icon"],
         'totalQuestions': subject["totalQuestions"],
       },
     );

@@ -4,7 +4,7 @@ import 'package:sizer/sizer.dart';
 import '../../../core/app_export.dart';
 
 class QuizHeaderWidget extends StatelessWidget {
-  final String subTopicName; // Renamed to be more explicit
+  final String subjectName; // Changed from subTopicName to subjectName
   final int currentQuestion;
   final int totalQuestions;
   final VoidCallback? onBackPressed;
@@ -12,7 +12,7 @@ class QuizHeaderWidget extends StatelessWidget {
 
   const QuizHeaderWidget({
     Key? key,
-    required this.subTopicName, // Renamed parameter
+    required this.subjectName, // Changed parameter name
     required this.currentQuestion,
     required this.totalQuestions,
     this.onBackPressed,
@@ -61,7 +61,7 @@ class QuizHeaderWidget extends StatelessWidget {
               SizedBox(width: 4.w),
               Expanded(
                 child: Text(
-                  subTopicName,
+                  subjectName, // Changed from subTopicName to subjectName
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w400,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -164,7 +164,7 @@ class QuizHeaderWidget extends StatelessWidget {
                   onBackPressed!();
                 } else {
                   Navigator.pop(
-                      context); // Go back to previous screen (sub-topic)
+                      context); // Go back to previous screen (home)
                 }
               },
               style: ElevatedButton.styleFrom(

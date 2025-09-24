@@ -40,7 +40,6 @@ class _QuizScreenState extends State<QuizScreen> {
   List<Question> _quizData = [];
   String _subjectName = '';
   String _subjectTag = '';
-  String _subTopicName = ''; // Added for storing sub-topic name
   final ConnectivityService _connectivityService = ConnectivityService();
 
   final List<String> _optionLabels = ['A', 'B', 'C', 'D'];
@@ -105,15 +104,15 @@ class _QuizScreenState extends State<QuizScreen> {
             args['subjectName'] ??
             '';
 
-        // Get sub-topic information
-        final subjectSubTag = args['subjectSubTag'] as String?;
-        _subTopicName = args['subTopicName'] ?? '';
+        // Get sub-topic information - REMOVED since sub_tag column is no longer used
+        // final subjectSubTag = args['subjectSubTag'] as String?;
+        // _subTopicName = args['subTopicName'] ?? '';
 
         print('📊 Extracted data:');
         print('   subjectName: "$_subjectName"');
         print('   subjectTag: "$_subjectTag"');
-        print('   subjectSubTag: "$subjectSubTag"');
-        print('   subTopicName: "$_subTopicName"');
+        // print('   subjectSubTag: "$subjectSubTag"'); // Removed since sub_tag column is no longer used
+        // print('   subTopicName: "$_subTopicName"'); // Removed since sub_tag column is no longer used
 
         // Validate that we have essential data
         if (_subjectTag.isEmpty) {
@@ -137,21 +136,14 @@ class _QuizScreenState extends State<QuizScreen> {
         }
 
         print(
-            'Loading quiz data for subject: $_subjectName, tag: $_subjectTag, sub_tag: $subjectSubTag');
+            'Loading quiz data for subject: $_subjectName, tag: $_subjectTag');
         print('✅ Internet connection confirmed - loading quiz questions...');
 
         List<Question> questions;
 
-        if (subjectSubTag != null && subjectSubTag.isNotEmpty) {
-          // Fetch questions by both tag and sub_tag
-          print('🔍 Fetching questions by tag AND sub_tag...');
-          questions = await SupabaseService.getQuestionsByTagAndSubTag(
-              _subjectTag, subjectSubTag);
-        } else {
-          // Fetch questions by tag only (original behavior)
-          print('🔍 Fetching questions by tag only...');
-          questions = await SupabaseService.getQuestionsByTag(_subjectTag);
-        }
+        // Always fetch questions by tag only since sub_tag column has been removed
+        print('🔍 Fetching questions by tag only (sub_tag column removed)...');
+        questions = await SupabaseService.getQuestionsByTag(_subjectTag);
 
         if (questions.isNotEmpty) {
           setState(() {
@@ -161,16 +153,16 @@ class _QuizScreenState extends State<QuizScreen> {
             _errorMessage = '';
           });
           print(
-              '✅ Successfully loaded ${questions.length} questions from Supabase for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
+              '✅ Successfully loaded ${questions.length} questions from Supabase for tag: $_subjectTag');
         } else {
           print(
-              '⚠️ No questions found for tag: $_subjectTag${subjectSubTag != null ? ", sub_tag: $subjectSubTag" : ""}');
+              '⚠️ No questions found for tag: $_subjectTag');
           setState(() {
             _quizData = [];
             _isLoading = false;
             _hasDataLoadError = true;
             _errorMessage =
-                'No questions available for this topic. The topic may not be set up yet.';
+                'No questions available for this topic. Please check if questions exist in the database for this subject.';
           });
         }
       } else {
@@ -469,7 +461,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
               SizedBox(height: 1.h),
               Text(
-                'Sub Topic: $_subTopicName\nTopic: $_subjectName',
+                'Topic: $_subjectName', // Removed sub-topic reference
                 style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
@@ -509,11 +501,11 @@ class _QuizScreenState extends State<QuizScreen> {
                     ),
                 textAlign: TextAlign.center,
               ),
-              if (_subjectName.isNotEmpty || _subTopicName.isNotEmpty)
+              if (_subjectName.isNotEmpty)
                 Padding(
                   padding: EdgeInsets.only(top: 1.h),
                   child: Text(
-                    'Topic: $_subjectName\nSub-topic: $_subTopicName',
+                    'Topic: $_subjectName',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontStyle: FontStyle.italic,
@@ -605,11 +597,11 @@ class _QuizScreenState extends State<QuizScreen> {
         body: Column(
           children: [
             QuizHeaderWidget(
-              subTopicName: _subTopicName,
+              subjectName: _subjectName, // Changed from subTopicName to subjectName
               currentQuestion: _currentQuestionIndex + 1,
               totalQuestions: _quizData.length,
-              onBackPressed: () => Navigator.pop(context),
-              onReportPressed: _showReportDialog,
+              onBackPressed: _showExitConfirmation,
+              onReportPressed: _showQuestionReport,
             ),
             QuizProgressIndicatorWidget(
               totalQuestions: _quizData.length,
