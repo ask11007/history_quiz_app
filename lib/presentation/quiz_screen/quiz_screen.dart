@@ -32,6 +32,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   DateTime? _quizStartTime;
   bool _hasLoadedData = false; // Add flag to prevent multiple loads
+  bool _hasShownStartAd = false; // Track if start ad has been shown
 
   // Quiz state management
   final QuizStateManager _quizStateManager = QuizStateManager();
@@ -78,6 +79,12 @@ class _QuizScreenState extends State<QuizScreen> {
         _errorMessage = 'No internet connection available';
       });
       return;
+    }
+
+    // Show interstitial ad when starting the quiz (only once)
+    if (!_hasShownStartAd) {
+      await AdService.instance.showInterstitialAd();
+      _hasShownStartAd = true;
     }
 
     // Only show loading state when we're actually going to fetch data
@@ -335,6 +342,9 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<bool> _onWillPop() async {
+    // Show interstitial ad when exiting the quiz
+    await AdService.instance.showInterstitialAd();
+    
     return await showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -440,8 +450,11 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _showExitConfirmation() {
-    // Navigate back to home screen
-    Navigator.pop(context);
+    // Show interstitial ad when exiting the quiz
+    AdService.instance.showInterstitialAd().then((_) {
+      // Navigate back to home screen
+      Navigator.pop(context);
+    });
   }
 
   void _showQuestionReport() {
