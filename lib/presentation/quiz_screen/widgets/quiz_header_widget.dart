@@ -40,7 +40,7 @@ class QuizHeaderWidget extends StatelessWidget {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => _showExitConfirmation(context),
+                onTap: onBackPressed,
                 child: Container(
                   padding: EdgeInsets.all(1.5.w),
                   decoration: BoxDecoration(
@@ -98,95 +98,6 @@ class QuizHeaderWidget extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  void _showExitConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              CustomIconWidget(
-                iconName: 'warning',
-                color: Theme.of(context).colorScheme.error,
-                size: 6.w,
-              ),
-              SizedBox(width: 3.w),
-              Flexible(
-                child: Text(
-                  'Exit Quiz',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          content: Text(
-            'Are you sure you want to exit? Your progress will be lost.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.surface,
-                foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                elevation: 2,
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outline,
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                'Cancel',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ),
-            SizedBox(width: 2.w),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                if (onBackPressed != null) {
-                  onBackPressed!();
-                } else {
-                  Navigator.pop(
-                      context); // Go back to previous screen (home)
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFC9463D),
-                foregroundColor: Colors.white,
-                elevation: 3,
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                'Exit Quiz',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
