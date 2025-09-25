@@ -398,7 +398,16 @@ class _QuizScreenState extends State<QuizScreen> {
                   onPressed: () {
                     // Show interstitial ad when exiting the quiz with fallback
                     print('📢 Ensuring interstitial ad is shown on quiz exit...');
-                    AdService.instance.ensureInterstitialAdShown().then((_) {
+                    AdService.instance.ensureInterstitialAdShown(timeout: Duration(seconds: 5)).then((adShown) {
+                      if (adShown) {
+                        print('✅ Interstitial ad shown successfully on exit');
+                      } else {
+                        print('⚠️ Interstitial ad not shown, proceeding anyway');
+                      }
+                      Navigator.of(context).pop(true);
+                      Navigator.pop(context); // Go back to home screen
+                    }).catchError((error) {
+                      print('❌ Error showing interstitial ad on exit: $error');
                       Navigator.of(context).pop(true);
                       Navigator.pop(context); // Go back to home screen
                     });
@@ -930,16 +939,19 @@ class _QuizResultsModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black.withOpacity(0.7),
       body: Stack(
         children: [
-          // Ad positioned directly at bottom without container constraints
+          // Clean ad positioned directly at bottom
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: MediumRectangleAdWidget(
-              enableAutoRefresh: true,
+            child: Container(
+              color: Colors.black,
+              child: MediumRectangleAdWidget(
+                enableAutoRefresh: true,
+              ),
             ),
           ),
 
@@ -948,6 +960,10 @@ class _QuizResultsModal extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(bottom: 25.h), // Push dialog higher
               child: AlertDialog(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 title: Text(
                   'Quiz Completed!',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(

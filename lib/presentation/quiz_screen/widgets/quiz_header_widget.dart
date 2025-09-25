@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../core/services/ad_service.dart';
 
 class QuizHeaderWidget extends StatelessWidget {
   final String subjectName; // Changed from subTopicName to subjectName
