@@ -396,20 +396,31 @@ class _QuizScreenState extends State<QuizScreen> {
                 SizedBox(width: 2.w),
                 ElevatedButton(
                   onPressed: () {
+                    // Set up ad dismissal callback
+                    AdService.instance.setOnInterstitialDismissedCallback(() {
+                      print('📱 Interstitial ad dismissed, navigating back to home');
+                      Navigator.of(context).pop(true);
+                      Navigator.pop(context); // Go back to home screen
+                      AdService.instance.clearOnInterstitialDismissedCallback();
+                    });
+                    
                     // Show interstitial ad when exiting the quiz with fallback
                     print('📢 Ensuring interstitial ad is shown on quiz exit...');
                     AdService.instance.ensureInterstitialAdShown(timeout: Duration(seconds: 5)).then((adShown) {
                       if (adShown) {
                         print('✅ Interstitial ad shown successfully on exit');
+                        // Navigation will happen in the callback when ad is dismissed
                       } else {
                         print('⚠️ Interstitial ad not shown, proceeding anyway');
+                        Navigator.of(context).pop(true);
+                        Navigator.pop(context); // Go back to home screen
+                        AdService.instance.clearOnInterstitialDismissedCallback();
                       }
-                      Navigator.of(context).pop(true);
-                      Navigator.pop(context); // Go back to home screen
                     }).catchError((error) {
                       print('❌ Error showing interstitial ad on exit: $error');
                       Navigator.of(context).pop(true);
                       Navigator.pop(context); // Go back to home screen
+                      AdService.instance.clearOnInterstitialDismissedCallback();
                     });
                   },
                   style: ElevatedButton.styleFrom(
@@ -455,11 +466,28 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _showExitConfirmation() {
+    // Set up ad dismissal callback
+    AdService.instance.setOnInterstitialDismissedCallback(() {
+      print('📱 Interstitial ad dismissed, navigating back to home');
+      Navigator.pop(context); // Go back to home screen
+      AdService.instance.clearOnInterstitialDismissedCallback();
+    });
+    
     // Show interstitial ad when exiting the quiz with fallback
     print('📢 Ensuring interstitial ad is shown on exit confirmation...');
-    AdService.instance.ensureInterstitialAdShown().then((_) {
-      // Navigate back to home screen
-      Navigator.pop(context);
+    AdService.instance.ensureInterstitialAdShown(timeout: Duration(seconds: 5)).then((adShown) {
+      if (adShown) {
+        print('✅ Interstitial ad shown successfully on exit');
+        // Navigation will happen in the callback when ad is dismissed
+      } else {
+        print('⚠️ Interstitial ad not shown, proceeding anyway');
+        Navigator.pop(context); // Go back to home screen
+        AdService.instance.clearOnInterstitialDismissedCallback();
+      }
+    }).catchError((error) {
+      print('❌ Error showing interstitial ad on exit: $error');
+      Navigator.pop(context); // Go back to home screen
+      AdService.instance.clearOnInterstitialDismissedCallback();
     });
   }
 
@@ -690,11 +718,31 @@ class _QuizScreenState extends State<QuizScreen> {
                         SizedBox(width: 2.w),
                         ElevatedButton(
                           onPressed: () {
-                            // Show interstitial ad when exiting the quiz with fallback
-                            print('📢 Ensuring interstitial ad is shown on quiz exit...');
-                            AdService.instance.ensureInterstitialAdShown().then((_) {
+                            // Set up ad dismissal callback
+                            AdService.instance.setOnInterstitialDismissedCallback(() {
+                              print('📱 Interstitial ad dismissed, navigating back to home');
                               Navigator.of(context).pop(true);
                               Navigator.pop(context); // Go back to home screen
+                              AdService.instance.clearOnInterstitialDismissedCallback();
+                            });
+                            
+                            // Show interstitial ad when exiting the quiz with fallback
+                            print('📢 Ensuring interstitial ad is shown on quiz exit...');
+                            AdService.instance.ensureInterstitialAdShown(timeout: Duration(seconds: 5)).then((adShown) {
+                              if (adShown) {
+                                print('✅ Interstitial ad shown successfully on exit');
+                                // Navigation will happen in the callback when ad is dismissed
+                              } else {
+                                print('⚠️ Interstitial ad not shown, proceeding anyway');
+                                Navigator.of(context).pop(true);
+                                Navigator.pop(context); // Go back to home screen
+                                AdService.instance.clearOnInterstitialDismissedCallback();
+                              }
+                            }).catchError((error) {
+                              print('❌ Error showing interstitial ad on exit: $error');
+                              Navigator.of(context).pop(true);
+                              Navigator.pop(context); // Go back to home screen
+                              AdService.instance.clearOnInterstitialDismissedCallback();
                             });
                           },
                           style: ElevatedButton.styleFrom(

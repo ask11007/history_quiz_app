@@ -62,9 +62,20 @@ class AdService {
   InterstitialAd? _interstitialAd;
   bool _isInterstitialReady = false;
   DateTime? _lastInterstitialShow;
+  VoidCallback? _onInterstitialDismissed; // Add callback for ad dismissal
 
   // Banner ad refresh timers
   final Map<String, Timer?> _bannerRefreshTimers = {};
+
+  /// Set callback for when interstitial ad is dismissed
+  void setOnInterstitialDismissedCallback(VoidCallback callback) {
+    _onInterstitialDismissed = callback;
+  }
+
+  /// Clear callback for interstitial ad dismissal
+  void clearOnInterstitialDismissedCallback() {
+    _onInterstitialDismissed = null;
+  }
 
   /// Initialize AdMob SDK
   Future<void> initialize() async {
@@ -294,6 +305,11 @@ class AdService {
                 _isInterstitialReady = false;
                 ad.dispose();
                 _interstitialAd = null;
+
+                // Call the registered callback if any
+                if (_onInterstitialDismissed != null) {
+                  _onInterstitialDismissed!();
+                }
 
                 // Load next interstitial ad
                 _loadInterstitialAd();
