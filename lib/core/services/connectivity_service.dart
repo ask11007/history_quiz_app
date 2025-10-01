@@ -102,7 +102,7 @@ class ConnectivityService {
       for (String host in testHosts) {
         try {
           final result = await InternetAddress.lookup(host)
-              .timeout(const Duration(seconds: 3));
+              .timeout(const Duration(seconds: 30));
           if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
             print('✅ Internet connectivity confirmed via $host');
             return true;
@@ -121,7 +121,7 @@ class ConnectivityService {
     }
   }
 
-  /// Start periodic connectivity testing (every 3 seconds when offline, every 30 seconds when online)
+  /// Start periodic connectivity testing (every 3 seconds when offline, every 90 seconds when online)
   void _startPeriodicConnectivityTest() {
     _connectionTestTimer?.cancel();
     _connectionTestTimer =
@@ -130,9 +130,9 @@ class ConnectivityService {
         print('🔄 Periodic connectivity test (offline mode)...');
         await _checkConnectivityWithInternetTest();
       } else {
-        // Less frequent checks when online (every 30 seconds)
-        if (timer.tick % 10 == 0) {
-          // Every 30 seconds (3 * 10)
+        // Less frequent checks when online (every 90 seconds)
+        if (timer.tick % 30 == 0) {
+          // Every 30 seconds (3 * 30)
           print('🔄 Periodic connectivity test (online verification)...');
           await _checkConnectivityWithInternetTest();
         }

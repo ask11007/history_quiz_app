@@ -26,7 +26,7 @@ class AdService {
 
   // Rate limiting protection
   static DateTime? _lastFailedRequest;
-  static const Duration _rateLimitCooldown = Duration(minutes: 5);
+  static const Duration _rateLimitCooldown = Duration(minutes: 10);
 
   // Test Ad Unit IDs (Google's test IDs for development)
   static const String _testBannerAdUnitId =
@@ -53,10 +53,10 @@ class AdService {
       _useTestAds ? _testMediumRectangleAdUnitId : _prodMediumRectangleAdUnitId;
 
   // Ad refresh configuration - Optimized for production
-  static const Duration _bannerRefreshInterval = Duration(minutes: 3);
-  static const Duration _interstitialCooldown = Duration(minutes: 2);
+  static const Duration _bannerRefreshInterval = Duration(minutes: 10);
+  static const Duration _interstitialCooldown = Duration(minutes: 7);
   static const Duration _retryDelay =
-      Duration(seconds: 30); // Increased retry delay
+      Duration(seconds: 600); // Increased retry delay
 
   // Interstitial ad management
   InterstitialAd? _interstitialAd;
@@ -190,7 +190,7 @@ class AdService {
             print('📭 No fill available, retrying in 30 seconds');
           } else {
             // Other errors - standard retry
-            retryDelay = Duration(seconds: 15);
+            retryDelay = Duration(seconds: 30);
           }
 
           // Retry loading after appropriate delay
@@ -332,7 +332,7 @@ class AdService {
             _interstitialAd = null;
 
             // Retry loading after delay
-            Timer(Duration(seconds: 15), () {
+            Timer(Duration(seconds: 30), () {
               _loadInterstitialAd();
             });
           },
